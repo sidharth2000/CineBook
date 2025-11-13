@@ -24,6 +24,10 @@ public class Theatre {
     private String overview;
     private String contactNumber;
     private boolean isActive;
+    
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private TheatreOwner theatreOwner;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id", referencedColumnName = "addressId")
@@ -32,9 +36,7 @@ public class Theatre {
     @OneToMany(mappedBy = "theatre", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Screen> screenList;
 
-    @ManyToOne
-    @JoinColumn(name = "owner_id")
-    private TheatreOwner theatreOwner;
+    
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

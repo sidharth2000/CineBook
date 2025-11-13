@@ -29,9 +29,9 @@ public class UserController {
 	@PostMapping("/register")
 	public ResponseEntity<ApiResponse<?>> registerUser(@RequestBody RegisterRequest request) {
 	    try {
-	        User user = userService.registerUser(request);
+	        userService.registerUser(request);
 	        return ResponseEntity.ok(
-	                new ApiResponse<>("success", user, "User registered successfully")
+	                new ApiResponse<>("success", null, "User registered successfully")
 	        );
 	    } catch (RuntimeException e) {
 	        return ResponseEntity.badRequest().body(
