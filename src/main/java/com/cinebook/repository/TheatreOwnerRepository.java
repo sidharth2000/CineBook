@@ -10,4 +10,5 @@ import com.cinebook.model.TheatreOwner;
 @Repository
 public interface TheatreOwnerRepository extends JpaRepository<TheatreOwner, Long>{
 	Optional<TheatreOwner> findByEmail(String email);
+	
 }

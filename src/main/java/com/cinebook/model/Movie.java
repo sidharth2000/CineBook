@@ -32,6 +32,9 @@ public class Movie {
     
     @Column(name = "release_date")
     private LocalDate releaseDate;
+    
+    @Column(name = "poster_url")
+    private String posterUrl;
 
     @ManyToMany
     @JoinTable(
@@ -126,6 +129,21 @@ public class Movie {
 	public void setReleaseDate(LocalDate releaseDate) {
 		this.releaseDate = releaseDate;
 	}
+
+	public Admin getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(Admin createdBy) {
+		this.createdBy = createdBy;
+	}
     
+	public String getPosterUrl() {
+        return posterUrl;
+    }
+
+    public void setPosterUrl(String posterUrl) {
+        this.posterUrl = posterUrl;
+    }
     
 }

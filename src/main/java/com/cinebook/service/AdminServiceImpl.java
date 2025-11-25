@@ -6,16 +6,25 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.cinebook.dto.MovieRequest;
 import com.cinebook.dto.OnboardingRequestResponse;
 import com.cinebook.dto.StatusUpdateRequest;
 import com.cinebook.model.Address;
+import com.cinebook.model.Admin;
+import com.cinebook.model.Format;
+import com.cinebook.model.Language;
+import com.cinebook.model.Movie;
 import com.cinebook.model.OnboardingRequest;
 import com.cinebook.model.RequestStatus;
 import com.cinebook.model.Theatre;
 import com.cinebook.model.TheatreOwner;
+import com.cinebook.repository.FormatRepository;
+import com.cinebook.repository.LanguagesRepository;
+import com.cinebook.repository.MovieRepository;
 import com.cinebook.repository.OnboardingRequestRepository;
 import com.cinebook.repository.RequestStatusRepository;
 import com.cinebook.repository.TheatreRepository;
+import com.cinebook.repository.UserRepository;
 
 @Service
 public class AdminServiceImpl implements AdminService {
@@ -29,13 +38,25 @@ public class AdminServiceImpl implements AdminService {
 	@Autowired
 	RequestStatusRepository requestStatusRepository;
 	
+	@Autowired
+	FormatRepository formatRepository;
+	
+	@Autowired
+	LanguagesRepository languageRepository;
+	
+	@Autowired
+	MovieRepository movieRepository;
+	
+	@Autowired
+	UserRepository userRepository;
+	
 	
 	@Override
 	public List<OnboardingRequestResponse> getOnboardingRequests(String statusName) {
 		
 	    List<OnboardingRequest> requests;
 
-	    if (statusName == "all") {
+	    if (statusName.equals("all")) {
 	        requests = onboardingRequestRepository.findAll();
 	    } else {
 	        requests = onboardingRequestRepository.findByStatus_StatusName(statusName);
@@ -123,4 +144,47 @@ public class AdminServiceImpl implements AdminService {
 
 	    return request;
 	}
+	
+	@Override
+    public List<Format> getAllFormats() {
+        return formatRepository.findAll();
+    }
+	
+	@Override
+    public List<Language> getAllLanguages() {
+        return languageRepository.findAll();
+    }
+	
+	
+	@Override
+    public Movie addMovie(MovieRequest dto, String adminEmail) {
+        if (movieRepository.existsByMovieTitleIgnoreCase(dto.getMovieTitle())) {
+            throw new RuntimeException("Movie with this title already exists!");
+        }
+        Admin admin = (Admin)userRepository.findByEmail(adminEmail)
+                .orElseThrow(() -> new RuntimeException("Admin not found"));
+
+        Movie movie = new Movie();
+        movie.setMovieTitle(dto.getMovieTitle());
+        movie.setSynopsis(dto.getSynopsis());
+        movie.setRunTimeMinutes(dto.getRunTimeMinutes());
+        movie.setReleaseDate(dto.getReleaseDate());
+        movie.setPosterUrl(dto.getPosterUrl());
+
+        List<Format> formats = formatRepository.findAllById(dto.getFormatIds());
+        movie.setAvailableFormats(formats);
+
+
+        List<Language> languages = languageRepository.findAllById(dto.getLanguageIds());
+        movie.setAvailableLanguages(languages);
+
+
+        List<Language> subtitleLanguages = languageRepository.findAllById(dto.getSubtitleLanguageIds());
+        movie.setSubtitleLanguages(subtitleLanguages);
+
+
+        movie.setCreatedBy(admin);
+
+        return movieRepository.save(movie);
+    }
 }
