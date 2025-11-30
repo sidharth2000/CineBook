@@ -1,4 +1,4 @@
-package com.cinebook.Factory;
+package com.cinebook.factory;
 
 import java.util.List;
 
