@@ -3,6 +3,9 @@ package com.cinebook.dto;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.cinebook.model.Certification;
+import com.cinebook.model.Genre;
+
 public class MovieRequest {
 
 	private String movieTitle;
@@ -10,7 +13,8 @@ public class MovieRequest {
 	private Integer runTimeMinutes;
 	private LocalDate releaseDate;
 	private String posterUrl;
-
+	private Certification certificate;
+	private Genre genre;
 	private List<Integer> formatIds;
 	private List<Integer> languageIds;
 	private List<Integer> subtitleLanguageIds;
@@ -78,4 +82,21 @@ public class MovieRequest {
 	public void setPosterUrl(String posterUrl) {
 		this.posterUrl = posterUrl;
 	}
+
+	public Certification getCertificate() {
+		return certificate;
+	}
+
+	public void setCertificate(Certification certificate) {
+		this.certificate = certificate;
+	}
+
+	public Genre getGenre() {
+		return genre;
+	}
+
+	public void setGenre(Genre genre) {
+		this.genre = genre;
+	}
+	
 }

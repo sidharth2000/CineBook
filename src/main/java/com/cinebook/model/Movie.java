@@ -5,6 +5,8 @@ import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -13,6 +15,11 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+
+
+
+
+
 
 @Entity
 @Table(name = "movies")
@@ -35,6 +42,14 @@ public class Movie {
     
     @Column(name = "poster_url")
     private String posterUrl;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = "certification", nullable = false)
+    private Certification certification;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = "genre", nullable = false)
+    private Genre genre;
 
     @ManyToMany
     @JoinTable(
@@ -145,5 +160,25 @@ public class Movie {
     public void setPosterUrl(String posterUrl) {
         this.posterUrl = posterUrl;
     }
+
+	public Certification getCertification() {
+		return certification;
+	}
+
+	public void setCertification(Certification certification) {
+		this.certification = certification;
+	}
+
+	public Genre getGenre() {
+		return genre;
+	}
+
+	public void setGenre(Genre genre) {
+		this.genre = genre;
+	}
+	
+	
+    
+    
     
 }

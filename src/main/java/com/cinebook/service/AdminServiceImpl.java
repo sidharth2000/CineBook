@@ -1,6 +1,7 @@
 package com.cinebook.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,9 @@ import com.cinebook.dto.OnboardingRequestResponse;
 import com.cinebook.dto.StatusUpdateRequest;
 import com.cinebook.model.Address;
 import com.cinebook.model.Admin;
+import com.cinebook.model.Certification;
 import com.cinebook.model.Format;
+import com.cinebook.model.Genre;
 import com.cinebook.model.Language;
 import com.cinebook.model.Movie;
 import com.cinebook.model.OnboardingRequest;
@@ -155,6 +158,15 @@ public class AdminServiceImpl implements AdminService {
         return languageRepository.findAll();
     }
 	
+	@Override
+	public List<Genre> getAllGenres() {
+	    return Arrays.asList(Genre.values());
+	}
+	
+	@Override
+	public List<Certification> getAllCertifications() {
+	    return Arrays.asList(Certification.values());
+	}
 	
 	@Override
     public Movie addMovie(MovieRequest dto, String adminEmail) {
@@ -170,6 +182,8 @@ public class AdminServiceImpl implements AdminService {
         movie.setRunTimeMinutes(dto.getRunTimeMinutes());
         movie.setReleaseDate(dto.getReleaseDate());
         movie.setPosterUrl(dto.getPosterUrl());
+        movie.setCertification(dto.getCertificate());
+        movie.setGenre(dto.getGenre());
 
         List<Format> formats = formatRepository.findAllById(dto.getFormatIds());
         movie.setAvailableFormats(formats);

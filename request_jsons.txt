@@ -1,0 +1,226 @@
+--------------------------------------------------------------------------------------------------------------------------
+/user/register
+
+{
+    "firstName": "Sidharthan",
+    "lastName": "Jayavelu",
+    "email": "sidsidharth2000@gmail.com",
+    "password": "sid@123",
+    "phoneNumber": "0892005006",
+    "addressLine1": "23 haymarket",
+    "addressLine2": "Catehedral place, Limerick",
+    "county": "Limerick",
+    "eirCode": "V94W27F"
+}
+
+
+{
+    "firstName": "Abhay",
+    "lastName": "Dev",
+    "email": "abhay.dev@example.com",
+    "password": "Abhay@123",
+    "phoneNumber": "0867543210",
+    "addressLine1": "45 Riverbank Avenue",
+    "addressLine2": "Dooradoyle, Limerick",
+    "county": "Limerick",
+    "eirCode": "V94P6D3"
+}
+--------------------------------------------------------------------------------------------------------------------------
+/user/login
+
+{
+  "email": "admin@cinebook.com",
+  "password": "Admin@123"
+}
+
+{
+  "email": "sidsidharth2000@gmail.com",
+  "password": "sid@123"
+}
+
+{
+  "email": "abhay.dev@example.com",
+  "password": "Abhay@123"
+}
+
+--------------------------------------------------------------------------------------------------------------------------
+/user/upgrade-to-theatre-owner
+
+{
+  "businessName": "Cinemanow Entertainement",
+  "businessId": "CINE12345",
+  "taxId": "TAX987654321"
+}
+--------------------------------------------------------------------------------------------------------------------------
+/theatre/onboard
+
+
+{
+  "theatreName": "Moview Plaza",
+  "overview": "Dolby Atmos, reclining seats, fully AC",
+  "contactNumber": "9876543210",
+  "address": {
+    "addressLine1": "123 Main Street",
+    "addressLine2": "Near City Center",
+    "county": "Dublin",
+    "eirCode": "D01XYZ"
+  },
+  "screens": [
+    {
+      "screenName": "Screen 1",
+      "rowLabels": ["A", "B", "C", "D", "E"],
+      "numColumns": 10,
+      "seatCategories": [
+        {
+          "categoryName": "Premium",
+          "description": "Front rows",
+          "priceMultiplier": 1.5,
+          "rowsCovered": ["A", "B"]
+        },
+        {
+          "categoryName": "Regular",
+          "description": "Standard seating",
+          "priceMultiplier": 1.0,
+          "rowsCovered": ["C", "D", "E"]
+        }
+      ]
+    },
+    {
+      "screenName": "Screen 2",
+      "rowLabels": ["A", "B", "C"],
+      "numColumns": 8,
+      "seatCategories": [
+        {
+          "categoryName": "VIP",
+          "description": "Front row VIP",
+          "priceMultiplier": 2.0,
+          "rowsCovered": ["A"]
+        },
+        {
+          "categoryName": "Standard",
+          "description": "Regular seating",
+          "priceMultiplier": 1.0,
+          "rowsCovered": ["B", "C"]
+        }
+      ]
+    }
+  ]
+}
+
+
+
+
+{
+  "theatreName": "CineWorld Arena",
+  "overview": "IMAX 4K projection, luxury recliners, Dolby Digital sound",
+  "contactNumber": "0891234567",
+  "address": {
+    "addressLine1": "45 Grand Avenue",
+    "addressLine2": "Opposite Riverside Mall",
+    "county": "Cork",
+    "eirCode": "T12ABC"
+  },
+  "screens": [
+    {
+      "screenName": "IMAX Screen",
+      "rowLabels": ["A", "B", "C", "D", "E", "F"],
+      "numColumns": 12,
+      "seatCategories": [
+        {
+          "categoryName": "IMAX-Premium",
+          "description": "Best IMAX experience",
+          "priceMultiplier": 2.2,
+          "rowsCovered": ["A", "B"]
+        },
+        {
+          "categoryName": "Comfort",
+          "description": "Mid-row luxury comfort",
+          "priceMultiplier": 1.4,
+          "rowsCovered": ["C", "D"]
+        },
+        {
+          "categoryName": "Standard",
+          "description": "Regular seating for IMAX",
+          "priceMultiplier": 1.0,
+          "rowsCovered": ["E", "F"]
+        }
+      ]
+    },
+    {
+      "screenName": "Classic Screen",
+      "rowLabels": ["A", "B", "C", "D"],
+      "numColumns": 9,
+      "seatCategories": [
+        {
+          "categoryName": "VIP Lounge",
+          "description": "Extra-wide recliners",
+          "priceMultiplier": 1.8,
+          "rowsCovered": ["A"]
+        },
+        {
+          "categoryName": "Regular",
+          "description": "Comfortable seating",
+          "priceMultiplier": 1.0,
+          "rowsCovered": ["B", "C", "D"]
+        }
+      ]
+    }
+  ]
+}
+
+--------------------------------------------------------------------------------------------------------------------------
+/admin/add-movie
+
+{
+  "movieTitle": "Inception",
+  "synopsis": "A skilled thief enters dreams to steal secrets, leading to a high-stakes mission inside layered realities.",
+  "runTimeMinutes": 148,
+  "releaseDate": "2010-07-16",
+  "formatIds": [1, 3, 5],
+  "languageIds": [1,2],
+  "subtitleLanguageIds": [3, 6],
+  "certificate": "C_12A",
+  "posterUrl": "https://example.com/inception.jpg",
+  "genre": "SCI_FI"
+}
+
+
+{
+  "movieTitle": "Parasite",
+  "synopsis": "Greed and class discrimination threaten the relationship between the wealthy Park family and the destitute Kim clan.",
+  "runTimeMinutes": 132,
+  "releaseDate": "2019-05-30",
+  "formatIds": [1, 2],
+  "languageIds": [5,3],
+  "subtitleLanguageIds": [1, 2],
+  "certificate": "C_15",
+  "posterUrl": "https://example.com/parasite.jpg",
+  "genre": "THRILLER"
+}
+
+{
+  "movieTitle": "Interstellar",
+  "synopsis": "A group of explorers travel through a wormhole in search of a new home for humanity.",
+  "runTimeMinutes": 169,
+  "releaseDate": "2014-11-07",
+  "formatIds": [1, 3, 4],
+  "languageIds": [1,2,3,4],
+  "subtitleLanguageIds": [2, 7],
+  "certificate": "C_12",
+  "posterUrl": "https://example.com/interstellar.jpg",
+  "genre": "ADVENTURE"
+}
+
+
+{
+  "movieTitle": "Drive",
+  "synopsis": "A mysterious Hollywood stuntman moonlights as a getaway driver and becomes entangled in a dangerous heist.",
+  "runTimeMinutes": 100,
+  "releaseDate": "2011-09-16",
+  "formatIds": [1],
+  "languageIds": [1],
+  "subtitleLanguageIds": [3],
+  "certificate": "C_18",
+  "posterUrl": "https://example.com/drive.jpg",
+  "genre": "CRIME"
+}

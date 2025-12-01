@@ -19,7 +19,9 @@ import com.cinebook.dto.ApiResponse;
 import com.cinebook.dto.MovieRequest;
 import com.cinebook.dto.OnboardingRequestResponse;
 import com.cinebook.dto.StatusUpdateRequest;
+import com.cinebook.model.Certification;
 import com.cinebook.model.Format;
+import com.cinebook.model.Genre;
 import com.cinebook.model.Language;
 import com.cinebook.model.Movie;
 import com.cinebook.model.OnboardingRequest;
@@ -167,6 +169,66 @@ public class AdminController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
 		}
 	}
+	
+	
+	@GetMapping("/genres")
+	public ResponseEntity<ApiResponse<List<Genre>>> getGenres() {
+	    try {
+	        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext()
+	                .getAuthentication().getPrincipal();
+
+	        boolean isAdmin = userDetails.getAuthorities().stream()
+	                .anyMatch(auth -> "ADMIN".equalsIgnoreCase(auth.getAuthority()));
+
+	        if (!isAdmin) {
+	            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+	                    .body(new ApiResponse<>("failure", null, "Access denied: Admins only"));
+	        }
+
+	        List<Genre> genres = adminService.getAllGenres();
+	        ApiResponse<List<Genre>> response = new ApiResponse<>("success", genres,
+	                "Genres retrieved successfully");
+
+	        return ResponseEntity.ok(response);
+
+	    } catch (Exception e) {
+	        ApiResponse<List<Genre>> error = new ApiResponse<>("failure", null, e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+	    }
+	}
+
+	
+	@GetMapping("/certifications")
+	public ResponseEntity<ApiResponse<List<Certification>>> getCertifications() {
+	    try {
+	        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext()
+	                .getAuthentication().getPrincipal();
+
+	        boolean isAdmin = userDetails.getAuthorities().stream()
+	                .anyMatch(auth -> "ADMIN".equalsIgnoreCase(auth.getAuthority()));
+
+	        if (!isAdmin) {
+	            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+	                    .body(new ApiResponse<>("failure", null, "Access denied: Admins only"));
+	        }
+
+	        List<Certification> certifications = adminService.getAllCertifications();
+	        ApiResponse<List<Certification>> response = new ApiResponse<>(
+	                "success",
+	                certifications,
+	                "Certifications retrieved successfully"
+	        );
+
+	        return ResponseEntity.ok(response);
+
+	    } catch (Exception e) {
+	        ApiResponse<List<Certification>> error =
+	                new ApiResponse<>("failure", null, e.getMessage());
+
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+	    }
+	}
+
 
 	@PostMapping("/add-movie")
 	public ResponseEntity<ApiResponse<Movie>> addMovie(@RequestBody MovieRequest dto) {
