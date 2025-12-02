@@ -7,11 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.cinebook.builder.ShowTimeBuilder;
+import com.cinebook.strategy.ShowTimeConflictPolicy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.cinebook.builder.TheatreBuilder;
-import com.cinebook.dto.ApiResponse;
 import com.cinebook.dto.FormatDto;
 import com.cinebook.dto.LanguageDto;
 import com.cinebook.dto.MovieResponse;
@@ -78,9 +79,13 @@ public class TheatreServiceImpl implements TheatreService {
     @Autowired
     private ScreenRepository screenRepository;
 
+    @Autowired
+    @Qualifier("overlappingShowTimePolicy")
+    private ShowTimeConflictPolicy conflictPolicy;
+
     @Override
     @Transactional
-    public ApiResponse<Void> onboardTheatre(String userEmail, TheatreOnboardingRequest request) {
+    public void onboardTheatre(String userEmail, TheatreOnboardingRequest request) {
 
         TheatreOwner owner = theatreOwnerRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User is not a theatre owner"));
@@ -100,8 +105,6 @@ public class TheatreServiceImpl implements TheatreService {
         onboardingRequest.setStatus(pendingStatus);
 
         onboardingRequestRepository.save(onboardingRequest);
-
-        return new ApiResponse<>("success", null, "Theatre onboarding request created successfully");
     }
 
     @Override
@@ -266,17 +269,11 @@ public class TheatreServiceImpl implements TheatreService {
 
         // Iterate through all dates in the range
         for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-            LocalDateTime startDateTime = LocalDateTime.of(date, startTime);
-            LocalDateTime endDateTime = startDateTime.plusMinutes(runTimeWithBuffer);
-
-            // Overlap check for this date
-            List<ShowTime> conflicts = showtimeRepository.findOverlappingShowTimes(screenId, date, startDateTime, endDateTime);
-
-            if (!conflicts.isEmpty()) {
+            if (conflictPolicy.hasConflict(movieId, screenId, date, startTime)) {
                 response.setValid(false);
                 response.setCalculatedEndTime(null);
-                response.setMessage("Showtime overlaps with an existing show on " + date);
-                return response; // exit on first conflict
+                response.setMessage("Showtime conflict on " + date);
+                return response;
             }
         }
 
@@ -317,16 +314,13 @@ public class TheatreServiceImpl implements TheatreService {
 
 
         for (LocalDate date : allDates) {
-            ShowTimeCheckResponse check = this.checkShowTime(
+            if (conflictPolicy.hasConflict(
                     movie.getMovieId(),
                     screen.getScreenId(),
                     date,
-                    date,
                     request.getStartTime()
-            );
-
-            if (!check.isValid()) {
-                return null;
+            )) {
+                throw new RuntimeException("Showtime conflict on " + date);
             }
         }
 

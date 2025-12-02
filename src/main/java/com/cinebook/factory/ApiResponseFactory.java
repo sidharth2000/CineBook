@@ -1,0 +1,21 @@
+package com.cinebook.factory;
+
+import com.cinebook.dto.ApiResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+
+@Component
+public class ApiResponseFactory {
+
+    public <T> ResponseEntity<ApiResponse<T>> success(T data, String message) {
+        return ResponseEntity.ok(new ApiResponse<>("success", data, message));
+    }
+
+    public <T> ResponseEntity<ApiResponse<T>> failure(String message, HttpStatus status) {
+        return ResponseEntity
+                .status(status)
+                .body(new ApiResponse<>("failure", null, message));
+    }
+}
+

@@ -3,6 +3,7 @@ package com.cinebook.controller;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.cinebook.factory.ApiResponseFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +34,9 @@ import com.cinebook.service.TheatreService;
 public class TheatreController {
 
     @Autowired
+    private ApiResponseFactory api;
+
+    @Autowired
     private TheatreService theatreService;
 
     @PostMapping("/onboard")
@@ -45,8 +49,8 @@ public class TheatreController {
                 .getPrincipal();
         String email = userDetails.getUsername();
 
-        ApiResponse<Void> response = theatreService.onboardTheatre(email, request);
-        return ResponseEntity.ok(response);
+        theatreService.onboardTheatre(email, request);
+        return api.success(null, "Theatre onboarding request created successfully");
     }
 
     @GetMapping("/movies")
@@ -55,10 +59,7 @@ public class TheatreController {
 
         List<MovieResponse> movies = theatreService.getAllMovies(titleFilter);
 
-        ApiResponse<List<MovieResponse>> apiResponse =
-                new ApiResponse<>("success", movies, "Movies retrieved successfully");
-
-        return ResponseEntity.ok(apiResponse);
+        return api.success(movies, "Movies retrieved successfully");
     }
 
 
@@ -68,10 +69,7 @@ public class TheatreController {
 
         List<LanguageDto> langs = theatreService.getLanguagesForMovie(movieId);
 
-        ApiResponse<List<LanguageDto>> apiResponse =
-                new ApiResponse<>("success", langs, "Languages retrieved successfully");
-
-        return ResponseEntity.ok(apiResponse);
+        return api.success(langs, "Languages retrieved successfully");
     }
 
 
@@ -81,9 +79,7 @@ public class TheatreController {
 
         List<FormatDto> formats = theatreService.getFromatsForMovie(movieId);
 
-        ApiResponse<List<FormatDto>> apiResponse = new ApiResponse<>("success", formats, "Formats retrieved successfully");
-
-        return ResponseEntity.ok(apiResponse);
+        return api.success(formats, "Formats retrieved successfully");
     }
 
     @GetMapping("/movies/{movieId}/availablesubtitles")
@@ -92,10 +88,7 @@ public class TheatreController {
 
         List<LanguageDto> langs = theatreService.getSubtitlesForMovie(movieId);
 
-        ApiResponse<List<LanguageDto>> apiResponse =
-                new ApiResponse<>("success", langs, "Subtitles retrieved successfully");
-
-        return ResponseEntity.ok(apiResponse);
+        return api.success(langs, "Subtitles retrieved successfully");
     }
 
     @GetMapping("/owned")
@@ -108,10 +101,7 @@ public class TheatreController {
         String ownerEmail = userDetails.getUsername();
         List<TheatreResponse> response = theatreService.getOwnedTheatres(ownerEmail);
 
-        ApiResponse<List<TheatreResponse>> apiResponse =
-                new ApiResponse<>("success", response, "Owned theatres retrieved successfully");
-
-        return ResponseEntity.ok(apiResponse);
+        return api.success(response, "Owned theatres retrieved successfully");
     }
 
 
@@ -127,10 +117,7 @@ public class TheatreController {
 
         List<ScreenResponse> response = theatreService.getScreensByTheatreId(theatreId, ownerEmail);
 
-        ApiResponse<List<ScreenResponse>> apiResponse =
-                new ApiResponse<>("success", response, "Screens retrieved successfully");
-
-        return ResponseEntity.ok(apiResponse);
+        return api.success(response, "Screens retrieved successfully");
     }
 
 
@@ -146,10 +133,7 @@ public class TheatreController {
                 request.getStartTime()
         );
 
-        ApiResponse<ShowTimeCheckResponse> apiResponse =
-                new ApiResponse<>("success", result, result.getMessage());
-
-        return ResponseEntity.ok(apiResponse);
+        return api.success(result, result.getMessage());
     }
 
 
@@ -162,7 +146,7 @@ public class TheatreController {
             throw new RuntimeException("Cannot Schedule showtimes - overlap in showtime schedule");
         }
 
-        return ResponseEntity.ok(new ApiResponse<>("success", scheduledDates, "Showtimes scheduled successfuly"));
+        return api.success(scheduledDates, "Showtimes scheduled successfuly");
     }
 
 }

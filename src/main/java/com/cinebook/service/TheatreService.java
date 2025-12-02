@@ -16,7 +16,7 @@ import com.cinebook.dto.TheatreResponse;
 
 public interface TheatreService {
 
-	ApiResponse<Void> onboardTheatre(String userEmail, TheatreOnboardingRequest request);
+	void onboardTheatre(String userEmail, TheatreOnboardingRequest request);
 
 	List<MovieResponse> getAllMovies(String titleFilter);
 
