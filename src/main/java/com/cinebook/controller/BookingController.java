@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cinebook.dto.ApiResponse;
 import com.cinebook.dto.ApplyDiscountRequest;
+import com.cinebook.dto.ApplyDiscountResponse;
 import com.cinebook.dto.BrowseMovieRequest;
 import com.cinebook.dto.BrowseTheatreRequest;
 import com.cinebook.dto.LockSeatsRequest;
@@ -211,7 +212,7 @@ public class BookingController {
 	
 	
 	 @PostMapping("/apply-discount")
-	    public ResponseEntity<ApiResponse<Void>> applyDiscount(
+	    public ResponseEntity<ApiResponse<ApplyDiscountResponse>> applyDiscount(
 	            @RequestBody ApplyDiscountRequest request
 	    ) {
 	        try {
@@ -232,9 +233,9 @@ public class BookingController {
 	            }
 
 	            // Pass the bookingId, discountCode, and user email to service
-	            bookingService.applyDiscount(request.getBookingId(), request.getDiscountCode(), userDetails.getUsername());
+	            ApplyDiscountResponse response = bookingService.applyDiscount(request.getBookingId(), request.getDiscountCode(), userDetails.getUsername());
 
-	            return ResponseEntity.ok(new ApiResponse<>("success", null, "Discount applied successfully"));
+	            return ResponseEntity.ok(new ApiResponse<>("success", response, "Discount applied successfully"));
 
 	        } catch (Exception e) {
 	            return ResponseEntity.badRequest()

@@ -25,6 +25,8 @@ public class ApplyDiscountCommand implements BookingCommand {
     private final Customer customer;
 
     private final int lockDurationMinutes = 5;
+    
+    private Booking booking; 
 
     public ApplyDiscountCommand(UUID bookingId,
                                 String discountCode,
@@ -90,6 +92,8 @@ public class ApplyDiscountCommand implements BookingCommand {
         booking.setModifiedAt(now);
 
         bookingRepository.save(booking);
+        this.booking = booking;
+        
     }
 
     @Override
@@ -106,5 +110,11 @@ public class ApplyDiscountCommand implements BookingCommand {
         persistedBooking.setModifiedAt(LocalDateTime.now());
 
         bookingRepository.save(persistedBooking);
+    }
+    
+    
+    @Override
+    public Booking getBooking() {
+        return booking;
     }
 }

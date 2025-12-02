@@ -111,6 +111,7 @@ public class LockSeatsCommand implements BookingCommand {
         }
     }
 
+    @Override
     public Booking getBooking() {
         return booking;
     }

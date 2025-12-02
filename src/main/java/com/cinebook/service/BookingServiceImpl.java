@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.cinebook.command.ApplyDiscountCommand;
 import com.cinebook.command.LockSeatsCommand;
+import com.cinebook.dto.ApplyDiscountResponse;
 import com.cinebook.dto.BrowseTheatreRequest;
 import com.cinebook.dto.LockSeatsResponse;
 import com.cinebook.dto.MovieBrowseResponse;
@@ -453,7 +454,7 @@ public class BookingServiceImpl implements BookingService {
 	    
 	    
 	    @Override
-	    public void applyDiscount(UUID bookingId, String discountCode, String customerEmail) {
+	    public ApplyDiscountResponse applyDiscount(UUID bookingId, String discountCode, String customerEmail) {
 	        // Fetch customer
 	        Customer customer = customerRepository.findByEmail(customerEmail);
 	        if (customer == null) {
@@ -472,6 +473,16 @@ public class BookingServiceImpl implements BookingService {
 	        );
 
 	        command.execute();
+	        
+	        Booking booking = command.getBooking();
+
+	        ApplyDiscountResponse response = new ApplyDiscountResponse();
+	        response.setBookingId(booking.getBookingId().toString());
+	        response.setOriginalPrice(booking.getTotalPrice() + booking.getDiscountedAmount());
+	        response.setDiscountedAmount(booking.getDiscountedAmount());
+	        response.setFinalPrice(booking.getTotalPrice());
+	        
+	        return response;
 	    }
 	    
 }

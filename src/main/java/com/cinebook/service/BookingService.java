@@ -3,6 +3,7 @@ package com.cinebook.service;
 import java.util.List;
 import java.util.UUID;
 
+import com.cinebook.dto.ApplyDiscountResponse;
 import com.cinebook.dto.BrowseTheatreRequest;
 import com.cinebook.dto.LockSeatsResponse;
 import com.cinebook.dto.MovieBrowseResponse;
@@ -23,5 +24,5 @@ public interface BookingService {
 
 	LockSeatsResponse lockSeats(Long showTimeId, String customerEmail, List<Long> seatIds);
 
-	void applyDiscount(UUID bookingId, String discountCode, String customerEmail);
+	ApplyDiscountResponse applyDiscount(UUID bookingId, String discountCode, String customerEmail);
 }
