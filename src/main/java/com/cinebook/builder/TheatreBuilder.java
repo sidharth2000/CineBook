@@ -86,6 +86,7 @@ public class TheatreBuilder {
                     seat.setRowName(String.valueOf(row));
                     seat.setColumnNumber(col);
                     seat.setSeatName("" + row + col);
+                    seat.setScreen(screen);
 
                     // Assign seat category
                     for (TheatreOnboardingRequest.SeatCategoryRequest catReq : screenReq.getSeatCategories()) {

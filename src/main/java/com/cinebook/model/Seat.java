@@ -21,6 +21,10 @@ public class Seat {
 	@ManyToOne
 	@JoinColumn(name = "seat_category_id")
 	private SeatCategory seatCategory;
+	
+	@ManyToOne
+	@JoinColumn(name= "screen_id")
+	private Screen screen;
 
 	public Long getSeatId() {
 		return seatId;
@@ -61,6 +65,15 @@ public class Seat {
 	public void setSeatCategory(SeatCategory seatCategory) {
 		this.seatCategory = seatCategory;
 	}
+
+	public Screen getScreen() {
+		return screen;
+	}
+
+	public void setScreen(Screen screen) {
+		this.screen = screen;
+	}
+	
 	
 	
 }
