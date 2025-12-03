@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.cinebook.dto.ApplyDiscountResponse;
 import com.cinebook.dto.BrowseTheatreRequest;
+import com.cinebook.dto.ConfirmBookingResponse;
 import com.cinebook.dto.LockSeatsResponse;
 import com.cinebook.dto.MovieBrowseResponse;
 import com.cinebook.dto.ShowTimeDetailsResponse;
@@ -21,8 +22,18 @@ public interface BookingService {
 	TheatreShowtimesResponse getShowtimesByTheatre(Long theatreId);
 
 	ShowTimeDetailsResponse getShowTimeDetails(Long showTimeId);
+	
+	
 
 	LockSeatsResponse lockSeats(Long showTimeId, String customerEmail, List<Long> seatIds);
+	
+	
 
 	ApplyDiscountResponse applyDiscount(UUID bookingId, String discountCode, String customerEmail);
+
+	ApplyDiscountResponse undoDiscount(UUID bookingId, String customerEmail);
+
+	ConfirmBookingResponse confirmBooking(UUID bookingId);
+
+	ConfirmBookingResponse cancelBooking(UUID bookingId);
 }

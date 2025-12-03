@@ -25,9 +25,8 @@ public class CustomerNotificationObserver implements BookingObserver {
         switch (booking.getStatus().getStatusName()) {
 
             case "SUCCESS":
-            	// logic to crate the ticket PDF
-            	byte[] ticketPdf = null;
-            	emailNotification.addAttachment(ticketPdf);
+            	
+            	emailNotification.addAttachment(booking.getTicketPdf());
 
                 emailNotification.send(
                         customerEmail,

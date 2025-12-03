@@ -10,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 
@@ -47,6 +48,9 @@ public class Booking {
 
     @Column(nullable = false)
     private Float totalPrice;
+    
+    @Lob
+    private byte[] ticketPdf;
     
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -177,4 +181,13 @@ public class Booking {
 	public void setModifiedAt(LocalDateTime modifiedAt) {
 	    this.modifiedAt = modifiedAt;
 	}
+	
+	public void setTicketPdf(byte[] ticketPdf) {
+	    this.ticketPdf = ticketPdf;
+	}
+
+	public byte[] getTicketPdf() {
+	    return ticketPdf;
+	}
+	
 }

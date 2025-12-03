@@ -13,9 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.cinebook.command.ApplyDiscountCommand;
+import com.cinebook.command.ConformBookingCommand;
 import com.cinebook.command.LockSeatsCommand;
 import com.cinebook.dto.ApplyDiscountResponse;
 import com.cinebook.dto.BrowseTheatreRequest;
+import com.cinebook.dto.ConfirmBookingResponse;
 import com.cinebook.dto.LockSeatsResponse;
 import com.cinebook.dto.MovieBrowseResponse;
 import com.cinebook.dto.ShowTimeDetailsResponse;
@@ -29,6 +31,10 @@ import com.cinebook.model.Screen;
 import com.cinebook.model.Seat;
 import com.cinebook.model.ShowTime;
 import com.cinebook.model.Theatre;
+import com.cinebook.observers.BookingObserver;
+import com.cinebook.observers.CustomerNotificationObserver;
+import com.cinebook.observers.LoyaltyPointsObserver;
+import com.cinebook.observers.TicketPdfGeneratorObserver;
 import com.cinebook.repository.BookingRepository;
 import com.cinebook.repository.BookingStatusRepository;
 import com.cinebook.repository.CustomerRepository;
@@ -39,11 +45,12 @@ import com.cinebook.repository.ShowtimeRepository;
 import com.cinebook.repository.TheatreRepository;
 import com.cinebook.repository.VoucherCodeRepository;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 
 @Service
 public class BookingServiceImpl implements BookingService {
-	
+		
 	 	@Autowired
 	    private ShowtimeRepository showTimeRepository;
 	 	
@@ -70,6 +77,27 @@ public class BookingServiceImpl implements BookingService {
 	 	
 	 	@Autowired
 	 	private PromoCodeRepository promoCodeRepository;
+	 	
+	 	
+	 	
+	 	private final List<BookingObserver> observers = new ArrayList<>();
+		
+		@PostConstruct
+	    public void init() {
+	        // Register observers
+			observers.add(new LoyaltyPointsObserver(customerRepository));
+			observers.add(new TicketPdfGeneratorObserver(bookingRepository));
+	        observers.add(new CustomerNotificationObserver());
+	        
+	    }
+		
+		
+		// Notify all observers
+		private void notifyObservers(Booking booking) {
+	        for (BookingObserver observer : observers) {
+	            observer.update(booking);
+	        }
+	    }
 	 	
 	 	
 	 	@Override
@@ -109,10 +137,12 @@ public class BookingServiceImpl implements BookingService {
 
 	        return new ArrayList<>(uniqueTheatres.values());
 	    }
+	 	
+	 	
 	 	@Override
 	 	public TheatreShowtimesResponse getShowtimesByTheatre(Long theatreId) {
 
-	 	    // 1. Load theatre
+	 	    
 	 	    Theatre theatre = theatreRepository.findById(theatreId)
 	 	            .orElseThrow(() -> new RuntimeException("Theatre not found"));
 
@@ -236,17 +266,6 @@ public class BookingServiceImpl implements BookingService {
 
 	 	    return response;
 	 	}
-	 	
-	 	
-	 	
-	 	
-	 	
-	 	
-	 	
-	 	
-	 	
-	 	
-	 	
 	 	
 	 	
 	 	
@@ -484,5 +503,110 @@ public class BookingServiceImpl implements BookingService {
 	        
 	        return response;
 	    }
+	    
+	    
+	    @Override
+	    public ApplyDiscountResponse undoDiscount(UUID bookingId, String customerEmail) {
+	        // Fetch customer
+	        Customer customer = customerRepository.findByEmail(customerEmail);
+	        if (customer == null) {
+	            throw new RuntimeException("Customer not found");
+	        }
+
+	        
+	        // Create the command with same dependencies
+	        ApplyDiscountCommand command = new ApplyDiscountCommand(
+	                bookingId,
+	                "",
+	                customer,
+	                bookingRepository,
+	                bookingStatusRepository,
+	                promoCodeRepository,
+	                voucherCodeRepository
+	        );
+
+	        // Invoke undo
+	        command.undo();
+
+	        // Fetch updated booking after undo
+	        Booking booking = command.getBooking();
+
+	        // Prepare response
+	        ApplyDiscountResponse response = new ApplyDiscountResponse();
+	        response.setBookingId(booking.getBookingId().toString());
+	        response.setOriginalPrice(booking.getTotalPrice());
+	        response.setDiscountedAmount(booking.getDiscountedAmount());
+	        response.setFinalPrice(booking.getTotalPrice());
+
+	        return response;
+	    }
+	    
+	    
+	    @Override
+	    public ConfirmBookingResponse confirmBooking(UUID bookingId) {
+	        // Fetch booking to get amount
+	        Booking booking = bookingRepository.findById(bookingId)
+	                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+	        // Mock payment processing
+	        String mockTransactionId = "TXN-" + UUID.randomUUID();
+	        System.out.println("Mock payment processed successfully for Booking ID " 
+	                + bookingId + " Amount: " + booking.getTotalPrice());
+
+	        GlobalConfig loyaltyFactor = globalConfigRepository.findByConfigKey("LOYALTY_FACTOR");
+	        float loyaltyFactorValue = Float.parseFloat(loyaltyFactor.getConfigValue());
+	        // Execute confirm booking command
+	        ConformBookingCommand command = new ConformBookingCommand(
+	                bookingId,
+	                bookingRepository,
+	                bookingStatusRepository,
+	                loyaltyFactorValue
+	        );
+	        command.execute();
+
+	        Booking confirmedBooking = command.getBooking();
+
+	        // Prepare response
+	        ConfirmBookingResponse response = new ConfirmBookingResponse();
+	        response.setBookingId(confirmedBooking.getBookingId().toString());
+	        response.setPaymentTransactionId(mockTransactionId);
+	        response.setPaymentStatus("SUCCESS");
+	        response.setAmountPaid(confirmedBooking.getTotalPrice());
+	        
+	        notifyObservers(confirmedBooking);
+
+	        return response;
+	    }
+	    
+	    
+	    
+	    @Override
+	    public ConfirmBookingResponse cancelBooking(UUID bookingId) {
+	        // Undo confirmation → mark CANCELLED
+	    	
+	    	GlobalConfig loyaltyFactor = globalConfigRepository.findByConfigKey("LOYALTY_FACTOR");
+	        float loyaltyFactorValue = Float.parseFloat(loyaltyFactor.getConfigValue());
+	        ConformBookingCommand command = new ConformBookingCommand(
+	                bookingId,
+	                bookingRepository,
+	                bookingStatusRepository,
+	                loyaltyFactorValue
+	        );
+	        command.undo();
+
+	        Booking cancelledBooking = command.getBooking();
+
+	        // Return mock payment rollback info
+	        ConfirmBookingResponse response = new ConfirmBookingResponse();
+	        response.setBookingId(cancelledBooking.getBookingId().toString());
+	        response.setPaymentTransactionId("TXN-ROLLBACK-" + UUID.randomUUID());
+	        response.setPaymentStatus("CANCELLED");
+	        response.setAmountPaid(0f);
+	        
+	        notifyObservers(cancelledBooking);
+
+	        return response;
+	    }
+
 	    
 }

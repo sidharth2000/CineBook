@@ -9,7 +9,7 @@ public class LoyaltyPointsObserver implements BookingObserver {
     private final CustomerRepository customerRepository;
 
     public LoyaltyPointsObserver(CustomerRepository customerRepository) {
-        this.customerRepository = customerRepository;
+    	this.customerRepository = customerRepository;
     }
 
     @Override
