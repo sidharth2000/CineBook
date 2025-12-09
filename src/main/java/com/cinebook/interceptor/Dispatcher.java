@@ -21,7 +21,7 @@ public class Dispatcher extends HttpServlet {
         // URL whitelist
         String path = req.getRequestURI();
         if (path.startsWith("/user/login") || path.startsWith("/user/register")) {
-            resp.setStatus(200);
+            super.service(req, resp);
             return; // released
         }
 
@@ -32,6 +32,7 @@ public class Dispatcher extends HttpServlet {
             resp.getWriter().write("Unauthorized");
             return;
         }
+
         try {
             // trigger the DispatcherServlet of SpringMVC, goto the controller
             super.service(req, resp);

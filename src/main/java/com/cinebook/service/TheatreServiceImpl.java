@@ -261,12 +261,6 @@ public class TheatreServiceImpl implements TheatreService {
 
         ShowTimeCheckResponse response = new ShowTimeCheckResponse();
 
-        Movie movie = movieRepository.findById(movieId)
-                .orElseThrow(() -> new RuntimeException("Movie not found"));
-
-        long runTimeWithBuffer = movie.getRunTimeMinutes() + 15; // runtime + buffer
-        LocalTime calculatedEndTime = startTime.plusMinutes(runTimeWithBuffer);
-
         // Iterate through all dates in the range
         for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
             if (conflictPolicy.hasConflict(movieId, screenId, date, startTime)) {
@@ -278,6 +272,12 @@ public class TheatreServiceImpl implements TheatreService {
         }
 
         // If no conflicts in the entire range
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new RuntimeException("Movie not found"));
+
+        long runTimeWithBuffer = movie.getRunTimeMinutes() + 15; // runtime + buffer
+        LocalTime calculatedEndTime = startTime.plusMinutes(runTimeWithBuffer);
+
         response.setValid(true);
         response.setCalculatedEndTime(calculatedEndTime); // only time part
         response.setMessage("Showtime slot is available for the entire range.");
