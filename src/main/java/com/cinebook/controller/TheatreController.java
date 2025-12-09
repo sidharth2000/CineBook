@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.cinebook.factory.ApiResponseFactory;
+import com.cinebook.factory.ResponseFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +35,7 @@ import com.cinebook.service.TheatreService;
 public class TheatreController {
 
     @Autowired
-    private ApiResponseFactory api;
+    private ResponseFactory api;
 
     @Autowired
     private TheatreService theatreService;
