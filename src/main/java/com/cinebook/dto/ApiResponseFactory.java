@@ -1,6 +1,5 @@
-package com.cinebook.factory;
+package com.cinebook.dto;
 
-import com.cinebook.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;

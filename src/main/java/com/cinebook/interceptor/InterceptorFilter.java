@@ -28,7 +28,7 @@ public class InterceptorFilter implements Filter {
         Context context = new Context(req, resp);
 
         // UserController：pass
-        if (path.startsWith("/user")) {
+        if (path.equals("/user/login") || path.equals("/user/register")) {
             filterChain.doFilter(request, response);
             return;
         }

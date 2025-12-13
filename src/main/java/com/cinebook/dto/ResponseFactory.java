@@ -1,4 +1,4 @@
-package com.cinebook.factory;
+package com.cinebook.dto;
 
 import com.cinebook.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
