@@ -1,6 +1,5 @@
 package com.cinebook.config;
 
-import com.cinebook.security.JwtAuthenticationFilter;
 import com.cinebook.service.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,8 +18,7 @@ public class SecurityConfig {
 /*    private final JwtAuthenticationFilter jwtAuthFilter;*/
     private final UserDetailsServiceImpl userDetailsService;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter,
-                          UserDetailsServiceImpl userDetailsService) {
+    public SecurityConfig(UserDetailsServiceImpl userDetailsService) {
 /*        this.jwtAuthFilter = jwtAuthFilter;*/
         this.userDetailsService = userDetailsService;
     }
