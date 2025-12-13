@@ -19,6 +19,9 @@ public class JwtAuthInterceptor implements Interceptor{
 
     @Override
     public boolean before(Context context) {
+
+        System.out.println(">>>>>>>>>>>> JwtAuthInterceptor.before");
+
         String token = context.getRequest().getHeader("Authorization");
         if (token == null || !token.startsWith("Bearer ")) {
             context.setResponseStatus(401);
