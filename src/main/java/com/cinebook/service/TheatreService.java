@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-import com.cinebook.dto.ApiResponse;
 import com.cinebook.dto.FormatDto;
 import com.cinebook.dto.LanguageDto;
 import com.cinebook.dto.MovieResponse;
@@ -16,7 +15,7 @@ import com.cinebook.dto.TheatreResponse;
 
 public interface TheatreService {
 
-	ApiResponse<Void> onboardTheatre(String userEmail, TheatreOnboardingRequest request);
+	void onboardTheatre(String userEmail, TheatreOnboardingRequest request);
 
 	List<MovieResponse> getAllMovies(String titleFilter);
 
