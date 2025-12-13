@@ -1,3 +1,9 @@
+/**
+ * @author Sidharthan Jayavelu and Jun Lai
+ * 
+ * 
+ */
+
 package com.cinebook.service;
 
 import java.time.LocalDate;

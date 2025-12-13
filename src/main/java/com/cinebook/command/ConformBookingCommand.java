@@ -1,3 +1,14 @@
+/**
+ * @author Sidharthan Jayavelu
+ * 
+ * Description:
+ * 
+ * Concrete Command to conform the booking
+ * execute() conforms the booking and moves to SUCCESS
+ * undo() cancels the booking and moves to CANCELLED
+ */
+
+
 package com.cinebook.command;
 
 import java.time.LocalDateTime;
@@ -38,7 +49,6 @@ public class ConformBookingCommand implements BookingCommand {
         LocalDateTime lockExpiry = booking.getCreatedAt().plusMinutes(lockDurationMinutes);
 
         if (now.isAfter(lockExpiry)) {
-            // Session expired → mark FAILURE and remove discount
             BookingStatus failureStatus = bookingStatusRepository.findByStatusName("FAILURE");
             booking.setStatus(failureStatus);
             removeDiscounts();
@@ -47,7 +57,6 @@ public class ConformBookingCommand implements BookingCommand {
             throw new RuntimeException("Booking session expired. Cannot confirm booking.");
         }
 
-        // Session valid → mark SUCCESS
         BookingStatus successStatus = bookingStatusRepository.findByStatusName("SUCCESS");
         booking.setStatus(successStatus);
         booking.setModifiedAt(now);
@@ -63,7 +72,6 @@ public class ConformBookingCommand implements BookingCommand {
         booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found for undo"));
 
-        // Cancel the booking → mark CANCELLED and remove discount
         BookingStatus cancelledStatus = bookingStatusRepository.findByStatusName("CANCELLED");
         booking.setStatus(cancelledStatus);
         removeDiscounts();
@@ -76,7 +84,6 @@ public class ConformBookingCommand implements BookingCommand {
         return booking;
     }
 
-    // Utility method to remove applied discounts
     private void removeDiscounts() {
         booking.setDiscountedAmount(0f);
         booking.setPromocodeUsed(null);

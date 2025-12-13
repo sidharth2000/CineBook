@@ -1,3 +1,9 @@
+/**
+ * @author Sidharthan Jayavelu
+ * 
+ * 
+ */
+
 package com.cinebook.service;
 
 import java.util.Optional;
@@ -15,24 +21,18 @@ import com.cinebook.repository.UserRepository;
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    @Autowired
-    private UserRepository userRepository;
+	@Autowired
+	private UserRepository userRepository;
 
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Optional<User> optionalUser = userRepository.findByEmail(email);
+	@Override
+	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+		Optional<User> optionalUser = userRepository.findByEmail(email);
 
-        User user = optionalUser.orElseThrow(() ->
-                new UsernameNotFoundException("User not found with email: " + email));
+		User user = optionalUser
+				.orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getEmail())
-                .password(user.getPasswordHash())
-                .authorities(
-                        user.getRoles().stream()
-                                .map(Role::getRoleName)
-                                .toArray(String[]::new)
-                )
-                .build();
-    }
+		return org.springframework.security.core.userdetails.User.builder().username(user.getEmail())
+				.password(user.getPasswordHash())
+				.authorities(user.getRoles().stream().map(Role::getRoleName).toArray(String[]::new)).build();
+	}
 }

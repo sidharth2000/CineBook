@@ -1,3 +1,9 @@
+/**
+ * @author Sidharthan Jayavelu
+ * 
+ * 
+ */
+
 package com.cinebook.observers;
 
 import java.awt.image.BufferedImage;

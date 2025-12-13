@@ -1,3 +1,12 @@
+/**
+ * @author Abhaydev and Mathew
+ * 
+ * Description:
+ * 
+ * AdminController responsible for function performed only by ADMIN
+ * Include the approval onboarding requests and manage movie usecases
+ */
+
 package com.cinebook.controller;
 
 import java.util.List;
@@ -34,225 +43,116 @@ public class AdminController {
 	@Autowired
 	AdminService adminService;
 
+	// API to View all onboarding requests with status filter
 	@GetMapping("/onboarding-requests")
 	public ResponseEntity<ApiResponse<List<OnboardingRequestResponse>>> getOnboardingRequests(
 			@RequestParam(required = false, defaultValue = "all") String statusName) {
-		try {
-			UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
-					.getPrincipal();
 
-			boolean isAdmin = userDetails.getAuthorities().stream()
-					.anyMatch(auth -> "ADMIN".equalsIgnoreCase(auth.getAuthority()));
+		List<OnboardingRequestResponse> response = adminService.getOnboardingRequests(statusName);
 
-			if (!isAdmin) {
-				return ResponseEntity.status(HttpStatus.FORBIDDEN)
-						.body(new ApiResponse<>("failure", null, "Access denied: Admins only"));
-			}
+		ApiResponse<List<OnboardingRequestResponse>> apiResponse = new ApiResponse<>("success", response,
+				"Onboarding requests retrieved successfully");
 
-			List<OnboardingRequestResponse> response = adminService.getOnboardingRequests(statusName);
-
-			ApiResponse<List<OnboardingRequestResponse>> apiResponse = new ApiResponse<>("success", response,
-					"Onboarding requests retrieved successfully");
-
-			return ResponseEntity.ok(apiResponse);
-
-		} catch (Exception e) {
-			ApiResponse<List<OnboardingRequestResponse>> apiResponse = new ApiResponse<>("failure", null,
-					e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiResponse);
-		}
+		return ResponseEntity.ok(apiResponse);
 	}
 
+	// API to View one onboarding request in detail for review
 	@GetMapping("/onboarding-request/{id}")
 	public ResponseEntity<ApiResponse<OnboardingRequest>> getOnboardingRequestById(@PathVariable Long id) {
-		try {
-			UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
-					.getPrincipal();
 
-			boolean isAdmin = userDetails.getAuthorities().stream()
-					.anyMatch(auth -> "ADMIN".equalsIgnoreCase(auth.getAuthority()));
+		OnboardingRequest request = adminService.getOnboardingRequestById(id);
 
-			if (!isAdmin) {
-				return ResponseEntity.status(HttpStatus.FORBIDDEN)
-						.body(new ApiResponse<>("failure", null, "Access denied: Admins only"));
-			}
-
-			OnboardingRequest request = adminService.getOnboardingRequestById(id);
-
-			if (request == null) {
-				return ResponseEntity.status(HttpStatus.NOT_FOUND)
-						.body(new ApiResponse<>("failure", null, "Onboarding request not found"));
-			}
-
-			ApiResponse<OnboardingRequest> apiResponse = new ApiResponse<>("success", request,
-					"Onboarding request details retrieved successfully");
-
-			return ResponseEntity.ok(apiResponse);
-
-		} catch (Exception e) {
-			ApiResponse<OnboardingRequest> apiResponse = new ApiResponse<>("failure", null, e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiResponse);
+		if (request == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(new ApiResponse<>("failure", null, "Onboarding request not found"));
 		}
+
+		ApiResponse<OnboardingRequest> apiResponse = new ApiResponse<>("success", request,
+				"Onboarding request details retrieved successfully");
+
+		return ResponseEntity.ok(apiResponse);
+
 	}
 
+	// API to Approve or Reject a onboarding request with its id
 	@PostMapping("/onboarding-request/approval")
 	public ResponseEntity<ApiResponse<OnboardingRequest>> updateOnboardingRequestStatus(
 			@RequestBody StatusUpdateRequest statusUpdateRequest) {
-		try {
-			UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
-					.getPrincipal();
 
-			boolean isAdmin = userDetails.getAuthorities().stream()
-					.anyMatch(auth -> "ADMIN".equalsIgnoreCase(auth.getAuthority()));
+		OnboardingRequest updatedRequest = adminService.updateOnboardingRequestStatus(statusUpdateRequest);
 
-			if (!isAdmin) {
-				return ResponseEntity.status(HttpStatus.FORBIDDEN)
-						.body(new ApiResponse<>("failure", null, "Access denied: Admins only"));
-			}
-
-			OnboardingRequest updatedRequest = adminService.updateOnboardingRequestStatus(statusUpdateRequest);
-
-			if (updatedRequest == null) {
-				return ResponseEntity.status(HttpStatus.NOT_FOUND)
-						.body(new ApiResponse<>("failure", null, "Onboarding request not found"));
-			}
-
-			ApiResponse<OnboardingRequest> apiResponse = new ApiResponse<>("success", null,
-					"Onboarding request " + statusUpdateRequest.getAction().toLowerCase() + " successfully");
-
-			return ResponseEntity.ok(apiResponse);
-
-		} catch (Exception e) {
-			ApiResponse<OnboardingRequest> apiResponse = new ApiResponse<>("failure", null, e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiResponse);
+		if (updatedRequest == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(new ApiResponse<>("failure", null, "Onboarding request not found"));
 		}
+
+		ApiResponse<OnboardingRequest> apiResponse = new ApiResponse<>("success", null,
+				"Onboarding request " + statusUpdateRequest.getAction().toLowerCase() + " successfully");
+
+		return ResponseEntity.ok(apiResponse);
+
 	}
 
+	// API to get all formats in the system - to populate format dropdown
 	@GetMapping("/formats")
 	public ResponseEntity<ApiResponse<List<Format>>> getFormats() {
-		try {
-			UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
-					.getPrincipal();
-			boolean isAdmin = userDetails.getAuthorities().stream()
-					.anyMatch(auth -> "ADMIN".equalsIgnoreCase(auth.getAuthority()));
-			if (!isAdmin) {
-				return ResponseEntity.status(HttpStatus.FORBIDDEN)
-						.body(new ApiResponse<>("failure", null, "Access denied: Admins only"));
-			}
-			List<Format> formats = adminService.getAllFormats();
-			ApiResponse<List<Format>> response = new ApiResponse<>("success", formats,
-					"Formats retrieved successfully");
-			return ResponseEntity.ok(response);
-		} catch (Exception e) {
-			ApiResponse<List<Format>> error = new ApiResponse<>("failure", null, e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
-		}
+
+		List<Format> formats = adminService.getAllFormats();
+		ApiResponse<List<Format>> response = new ApiResponse<>("success", formats, "Formats retrieved successfully");
+		return ResponseEntity.ok(response);
+
 	}
 
+	// API to get all languages in the system - to populate language and subtitle
+	// dropdown
 	@GetMapping("/languages")
 	public ResponseEntity<ApiResponse<List<Language>>> getLanguages() {
-		try {
-			UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
-					.getPrincipal();
-			boolean isAdmin = userDetails.getAuthorities().stream()
-					.anyMatch(auth -> "ADMIN".equalsIgnoreCase(auth.getAuthority()));
-			if (!isAdmin) {
-				return ResponseEntity.status(HttpStatus.FORBIDDEN)
-						.body(new ApiResponse<>("failure", null, "Access denied: Admins only"));
-			}
-			List<Language> languages = adminService.getAllLanguages();
-			ApiResponse<List<Language>> response = new ApiResponse<>("success", languages,
-					"Languages retrieved successfully");
-			return ResponseEntity.ok(response);
-		} catch (Exception e) {
-			ApiResponse<List<Language>> error = new ApiResponse<>("failure", null, e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
-		}
+
+		List<Language> languages = adminService.getAllLanguages();
+		ApiResponse<List<Language>> response = new ApiResponse<>("success", languages,
+				"Languages retrieved successfully");
+		return ResponseEntity.ok(response);
+
 	}
-	
-	
+
+	// API to get all genres in the system - to populate genre dropdown
 	@GetMapping("/genres")
 	public ResponseEntity<ApiResponse<List<Genre>>> getGenres() {
-	    try {
-	        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext()
-	                .getAuthentication().getPrincipal();
 
-	        boolean isAdmin = userDetails.getAuthorities().stream()
-	                .anyMatch(auth -> "ADMIN".equalsIgnoreCase(auth.getAuthority()));
+		List<Genre> genres = adminService.getAllGenres();
+		ApiResponse<List<Genre>> response = new ApiResponse<>("success", genres, "Genres retrieved successfully");
 
-	        if (!isAdmin) {
-	            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-	                    .body(new ApiResponse<>("failure", null, "Access denied: Admins only"));
-	        }
+		return ResponseEntity.ok(response);
 
-	        List<Genre> genres = adminService.getAllGenres();
-	        ApiResponse<List<Genre>> response = new ApiResponse<>("success", genres,
-	                "Genres retrieved successfully");
-
-	        return ResponseEntity.ok(response);
-
-	    } catch (Exception e) {
-	        ApiResponse<List<Genre>> error = new ApiResponse<>("failure", null, e.getMessage());
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
-	    }
 	}
 
-	
+	// API to get all certifications in the system - to populate certification
+	// dropdown
 	@GetMapping("/certifications")
 	public ResponseEntity<ApiResponse<List<Certification>>> getCertifications() {
-	    try {
-	        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext()
-	                .getAuthentication().getPrincipal();
 
-	        boolean isAdmin = userDetails.getAuthorities().stream()
-	                .anyMatch(auth -> "ADMIN".equalsIgnoreCase(auth.getAuthority()));
+		List<Certification> certifications = adminService.getAllCertifications();
+		ApiResponse<List<Certification>> response = new ApiResponse<>("success", certifications,
+				"Certifications retrieved successfully");
 
-	        if (!isAdmin) {
-	            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-	                    .body(new ApiResponse<>("failure", null, "Access denied: Admins only"));
-	        }
+		return ResponseEntity.ok(response);
 
-	        List<Certification> certifications = adminService.getAllCertifications();
-	        ApiResponse<List<Certification>> response = new ApiResponse<>(
-	                "success",
-	                certifications,
-	                "Certifications retrieved successfully"
-	        );
-
-	        return ResponseEntity.ok(response);
-
-	    } catch (Exception e) {
-	        ApiResponse<List<Certification>> error =
-	                new ApiResponse<>("failure", null, e.getMessage());
-
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
-	    }
 	}
 
-
+	// API to upload a new movie to the global movie catalog
 	@PostMapping("/add-movie")
 	public ResponseEntity<ApiResponse<Movie>> addMovie(@RequestBody MovieRequest dto) {
-		try {
-			UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
-					.getPrincipal();
-			boolean isAdmin = userDetails.getAuthorities().stream()
-					.anyMatch(auth -> "ADMIN".equalsIgnoreCase(auth.getAuthority()));
-			if (!isAdmin) {
-				return ResponseEntity.status(HttpStatus.FORBIDDEN)
-						.body(new ApiResponse<>("failure", null, "Access denied: Admins only"));
-			}
-			String adminEmail = userDetails.getUsername();
 
-			Movie savedMovie = adminService.addMovie(dto, adminEmail);
+		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-			ApiResponse<Movie> response = new ApiResponse<>("success", null, "Movie added successfully");
+		String adminEmail = userDetails.getUsername();
 
-			return ResponseEntity.ok(response);
+		Movie savedMovie = adminService.addMovie(dto, adminEmail);
 
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(new ApiResponse<>("failure", null, e.getMessage()));
-		}
+		ApiResponse<Movie> response = new ApiResponse<>("success", savedMovie, "Movie added successfully");
+
+		return ResponseEntity.ok(response);
+
 	}
 
 }

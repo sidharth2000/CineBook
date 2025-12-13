@@ -1,3 +1,9 @@
+/**
+ * @author Mathew and Abhaydev
+ * 
+ * 
+ */
+
 package com.cinebook.notification;
 
 import java.util.ArrayList;
@@ -20,71 +26,72 @@ import jakarta.mail.util.ByteArrayDataSource;
 
 public class EmailNotification implements Notification {
 
-    private List<byte[]> attachments = new ArrayList<>();
+	private List<byte[]> attachments = new ArrayList<>();
 
-    public void addAttachment(byte[] attachment) {
-        attachments.add(attachment);
-    }
+	public void addAttachment(byte[] attachment) {
+		attachments.add(attachment);
+	}
 
-    @Override
-    public void send(String to, String messageBody) {
-        System.out.println("=== Sending EMAIL ===");
-        System.out.println("To: " + to);
-        System.out.println("Message: " + messageBody);
-        System.out.println("Attachments count: " + attachments.size());
+	@Override
+	public void send(String to, String messageBody) {
+		System.out.println("=== Sending EMAIL ===");
+		System.out.println("To: " + to);
+		System.out.println("Message: " + messageBody);
+		System.out.println("Attachments count: " + attachments.size());
 
-        // Outlook SMTP configuration
-        final String username = ""; 
-        final String password = "";           
-        String host = "smtp.office365.com";
-        int port = 587;
+		// Outlook SMTP configuration
+		final String username = "";
+		final String password = "";
+		String host = "smtp.office365.com";
+		int port = 587;
 
-        Properties props = new Properties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.host", host);
-        props.put("mail.smtp.port", port);
+		Properties props = new Properties();
+		props.put("mail.smtp.auth", "true");
+		props.put("mail.smtp.starttls.enable", "true");
+		props.put("mail.smtp.host", host);
+		props.put("mail.smtp.port", port);
 
-        Session session = Session.getInstance(props, new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(username, password);
-            }
-        });
+		Session session = Session.getInstance(props, new Authenticator() {
+			@Override
+			protected PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication(username, password);
+			}
+		});
 
-        try {
-            Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(username));
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
-            message.setSubject("CineBook Notification");
+		try {
+			Message message = new MimeMessage(session);
+			message.setFrom(new InternetAddress(username));
+			message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
+			message.setSubject("CineBook Notification");
 
-            // Create multipart message (body + attachments)
-            Multipart multipart = new MimeMultipart();
+			// Create multipart message (body + attachments)
+			Multipart multipart = new MimeMultipart();
 
-            // Body part
-            BodyPart bodyPart = new MimeBodyPart();
-            bodyPart.setText(messageBody);
-            multipart.addBodyPart(bodyPart);
+			// Body part
+			BodyPart bodyPart = new MimeBodyPart();
+			bodyPart.setText(messageBody);
+			multipart.addBodyPart(bodyPart);
 
-            // Attachments
-            for (int i = 0; i < attachments.size(); i++) {
-                MimeBodyPart attachmentPart = new MimeBodyPart();
-                DataSource source = new ByteArrayDataSource(attachments.get(i), "application/pdf");
-                attachmentPart.setDataHandler(new DataHandler(source));
-                attachmentPart.setFileName("ticket_" + (i+1) + ".pdf");
-                multipart.addBodyPart(attachmentPart);
-            }
+			// Attachments
+			for (int i = 0; i < attachments.size(); i++) {
+				MimeBodyPart attachmentPart = new MimeBodyPart();
+				DataSource source = new ByteArrayDataSource(attachments.get(i), "application/pdf");
+				attachmentPart.setDataHandler(new DataHandler(source));
+				attachmentPart.setFileName("ticket_" + (i + 1) + ".pdf");
+				multipart.addBodyPart(attachmentPart);
+			}
 
-            message.setContent(multipart);
+			message.setContent(multipart);
 
-            // Commented out actual sending for now
-            // Transport.send(message);
+			// Commented out actual sending for now
+			// Transport.send(message);
 
-            System.out.println("Email send simulated successfully to: " + to + " with " + attachments.size() + " attachments.");
+			System.out.println(
+					"Email send simulated successfully to: " + to + " with " + attachments.size() + " attachments.");
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Failed to send email: " + e.getMessage());
-        }
-    }
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Failed to send email: " + e.getMessage());
+		}
+	}
 }

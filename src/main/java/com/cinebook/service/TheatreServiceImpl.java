@@ -1,3 +1,9 @@
+/**
+ * @author Sidharthan Jayavelu and Jun Lai
+ * 
+ * 
+ */
+
 package com.cinebook.service;
 
 import java.time.LocalDate;
@@ -7,8 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.cinebook.builder.ShowTimeBuilder;
 import com.cinebook.builder.TheatreBuilder;
 import com.cinebook.dto.ApiResponse;
 import com.cinebook.dto.FormatDto;
@@ -41,6 +49,7 @@ import com.cinebook.repository.ShowtimeRepository;
 import com.cinebook.repository.TheatreOwnerRepository;
 import com.cinebook.repository.TheatreRepository;
 import com.cinebook.repository.UserRepository;
+import com.cinebook.strategy.ShowTimeConflictPolicy;
 
 import jakarta.transaction.Transactional;
 
@@ -67,15 +76,19 @@ public class TheatreServiceImpl implements TheatreService {
 
 	@Autowired
 	private ShowtimeRepository showtimeRepository;
-	
+
 	@Autowired
 	private FormatRepository formatRepository;
-	
+
 	@Autowired
 	private LanguagesRepository languageRepository;
-	
+
 	@Autowired
 	private ScreenRepository screenRepository;
+
+	@Autowired
+	@Qualifier("overlappingShowTimePolicy")
+	private ShowTimeConflictPolicy conflictPolicy;
 
 	@Override
 	@Transactional
@@ -251,107 +264,121 @@ public class TheatreServiceImpl implements TheatreService {
 	}
 
 	@Override
-	public ShowTimeCheckResponse checkShowTime(Long movieId, Long screenId, 
-	                                           LocalDate startDate, LocalDate endDate, 
-	                                           LocalTime startTime) {
+	public ShowTimeCheckResponse checkShowTime(Long movieId, Long screenId, LocalDate startDate, LocalDate endDate,
+			LocalTime startTime) {
 
-	    ShowTimeCheckResponse response = new ShowTimeCheckResponse();
+		ShowTimeCheckResponse response = new ShowTimeCheckResponse();
 
-	    Movie movie = movieRepository.findById(movieId)
-	            .orElseThrow(() -> new RuntimeException("Movie not found"));
+		Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new RuntimeException("Movie not found"));
 
-	    long runTimeWithBuffer = movie.getRunTimeMinutes() + 15; // runtime + buffer
-	    LocalTime calculatedEndTime = startTime.plusMinutes(runTimeWithBuffer);
+		long runTimeWithBuffer = movie.getRunTimeMinutes() + 15; // runtime + buffer
+		LocalTime calculatedEndTime = startTime.plusMinutes(runTimeWithBuffer);
 
-	    // Iterate through all dates in the range
-	    for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-	        LocalDateTime startDateTime = LocalDateTime.of(date, startTime);
-	        LocalDateTime endDateTime = startDateTime.plusMinutes(runTimeWithBuffer);
+//	    // Iterate through all dates in the range
+//	    for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+//	        LocalDateTime startDateTime = LocalDateTime.of(date, startTime);
+//	        LocalDateTime endDateTime = startDateTime.plusMinutes(runTimeWithBuffer);
+//
+//	        // Overlap check for this date
+//	        List<ShowTime> conflicts = showtimeRepository.findOverlappingShowTimes(screenId, date, startDateTime, endDateTime);
+//
+//	        if (!conflicts.isEmpty()) {
+//	            response.setValid(false);
+//	            response.setCalculatedEndTime(null);
+//	            response.setMessage("Showtime overlaps with an existing show on " + date);
+//	            return response; // exit on first conflict
+//	        }
+//	    }
 
-	        // Overlap check for this date
-	        List<ShowTime> conflicts = showtimeRepository.findOverlappingShowTimes(screenId, date, startDateTime, endDateTime);
+		// Iterate through all dates in the range
+		for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+			if (conflictPolicy.hasConflict(movieId, screenId, date, startTime)) {
+				response.setValid(false);
+				response.setCalculatedEndTime(null);
+				response.setMessage("Showtime conflict on " + date);
+				return response;
+			}
+		}
 
-	        if (!conflicts.isEmpty()) {
-	            response.setValid(false);
-	            response.setCalculatedEndTime(null);
-	            response.setMessage("Showtime overlaps with an existing show on " + date);
-	            return response; // exit on first conflict
-	        }
-	    }
+		// If no conflicts in the entire range
+		response.setValid(true);
+		response.setCalculatedEndTime(calculatedEndTime); // only time part
+		response.setMessage("Showtime slot is available for the entire range.");
 
-	    // If no conflicts in the entire range
-	    response.setValid(true);
-	    response.setCalculatedEndTime(calculatedEndTime); // only time part
-	    response.setMessage("Showtime slot is available for the entire range.");
-
-	    return response;
+		return response;
 	}
-	
-	
-	
+
 	@Override
 	@Transactional
 	public List<LocalDate> scheduleShowTime(ShowTimeScheduleRequest request) {
 
+		Movie movie = movieRepository.findById(request.getMovieId())
+				.orElseThrow(() -> new RuntimeException("Movie not found"));
+		Format format = formatRepository.findById(request.getFormatId())
+				.orElseThrow(() -> new RuntimeException("Format not found"));
+		Language language = languageRepository.findById(request.getLanguageId())
+				.orElseThrow(() -> new RuntimeException("Language not found"));
 
-	    Movie movie = movieRepository.findById(request.getMovieId())
-	            .orElseThrow(() -> new RuntimeException("Movie not found"));
-	    Format format = formatRepository.findById(request.getFormatId())
-	            .orElseThrow(() -> new RuntimeException("Format not found"));
-	    Language language = languageRepository.findById(request.getLanguageId())
-	            .orElseThrow(() -> new RuntimeException("Language not found"));
+		Language subtitleLanguage = null;
+		if (request.getSubtitleLanguageId() != null) {
+			subtitleLanguage = languageRepository.findById(request.getSubtitleLanguageId())
+					.orElseThrow(() -> new RuntimeException("Subtitle language not found"));
+		}
 
-	    Language subtitleLanguage = null;
-	    if (request.getSubtitleLanguageId() != null) {
-	        subtitleLanguage = languageRepository.findById(request.getSubtitleLanguageId())
-	                .orElseThrow(() -> new RuntimeException("Subtitle language not found"));
-	    }
+		Screen screen = screenRepository.findById(request.getScreenId())
+				.orElseThrow(() -> new RuntimeException("Screen not found"));
 
-	    Screen screen = screenRepository.findById(request.getScreenId())
-	            .orElseThrow(() -> new RuntimeException("Screen not found"));
+		List<LocalDate> allDates = new ArrayList<>();
+		for (LocalDate date = request.getStartDate(); !date.isAfter(request.getEndDate()); date = date.plusDays(1)) {
+			allDates.add(date);
+		}
 
-	    List<LocalDate> allDates = new ArrayList<>();
-	    for (LocalDate date = request.getStartDate(); !date.isAfter(request.getEndDate()); date = date.plusDays(1)) {
-	        allDates.add(date);
-	    }
+//	    for (LocalDate date : allDates) {
+//	        ShowTimeCheckResponse check = this.checkShowTime(
+//	                movie.getMovieId(),
+//	                screen.getScreenId(),
+//	                date,
+//	                date,
+//	                request.getStartTime()
+//	        );
+//
+//	        if (!check.isValid()) {
+//	            return null;
+//	        }
+//	    }
 
-	    
-	    for (LocalDate date : allDates) {
-	        ShowTimeCheckResponse check = this.checkShowTime(
-	                movie.getMovieId(),
-	                screen.getScreenId(),
-	                date,
-	                date,
-	                request.getStartTime()
-	        );
+		for (LocalDate date : allDates) {
+			if (conflictPolicy.hasConflict(movie.getMovieId(), screen.getScreenId(), date, request.getStartTime())) {
+				throw new RuntimeException("Showtime conflict on " + date);
+			}
+		}
 
-	        if (!check.isValid()) {
-	            return null;
-	        }
-	    }
+		LocalTime startTime = request.getStartTime();
+		LocalTime calculatedEndTime = startTime.plusMinutes(movie.getRunTimeMinutes() + 15);
 
-	    LocalTime startTime = request.getStartTime();
-	    LocalTime calculatedEndTime = startTime.plusMinutes(movie.getRunTimeMinutes() + 15);
+		for (LocalDate date : allDates) {
+			LocalDateTime startDateTime = LocalDateTime.of(date, startTime);
+			LocalDateTime endDateTime = LocalDateTime.of(date, calculatedEndTime);
 
-	    for (LocalDate date : allDates) {
-	        LocalDateTime startDateTime = LocalDateTime.of(date, startTime);
-	        LocalDateTime endDateTime = LocalDateTime.of(date, calculatedEndTime);
+//	        ShowTime showTime = new ShowTime();
+//	        showTime.setMovie(movie);
+//	        showTime.setFormat(format);
+//	        showTime.setLanguage(language);
+//	        showTime.setSubtitleLanguage(subtitleLanguage);
+//	        showTime.setScreen(screen);
+//	        showTime.setStartTime(startDateTime);
+//	        showTime.setEndTime(endDateTime);
+//	        showTime.setPrice(request.getBasePrice());
+//	        showTime.setCreatedAt(LocalDateTime.now());
+//	        showTime.setModifiedAt(LocalDateTime.now());
 
-	        ShowTime showTime = new ShowTime();
-	        showTime.setMovie(movie);
-	        showTime.setFormat(format);
-	        showTime.setLanguage(language);
-	        showTime.setSubtitleLanguage(subtitleLanguage);
-	        showTime.setScreen(screen);
-	        showTime.setStartTime(startDateTime);
-	        showTime.setEndTime(endDateTime);
-	        showTime.setPrice(request.getBasePrice());
-	        showTime.setCreatedAt(LocalDateTime.now());
-	        showTime.setModifiedAt(LocalDateTime.now());
+			ShowTime showTime = ShowTimeBuilder.builder().movie(movie).format(format).language(language)
+					.subtitleLanguage(subtitleLanguage).screen(screen).startTime(startDateTime).endTime(endDateTime)
+					.price(request.getBasePrice()).build();
 
-	        showtimeRepository.save(showTime);
-	    }
+			showtimeRepository.save(showTime);
+		}
 
-	    return allDates;
+		return allDates;
 	}
 }

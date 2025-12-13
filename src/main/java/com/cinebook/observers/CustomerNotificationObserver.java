@@ -1,7 +1,10 @@
-package com.cinebook.observers;
+/**
+ * @author Sidharthan Jayavelu
+ * 
+ * 
+ */
 
-import java.util.ArrayList;
-import java.util.List;
+package com.cinebook.observers;
 
 import com.cinebook.model.Booking;
 import com.cinebook.notification.Notification;

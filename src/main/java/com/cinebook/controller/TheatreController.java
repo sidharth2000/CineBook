@@ -1,3 +1,11 @@
+/**
+ * @author Jun Lai and Sidharthan Jayavelu
+ * 
+ * Description:
+ * Theatre controller is for theatre owner fucntions -> onboarding a theatre , scheduling showtimes 
+ * 
+ */
+
 package com.cinebook.controller;
 
 import java.time.LocalDate;
@@ -31,303 +39,131 @@ import com.cinebook.service.TheatreService;
 @RestController
 @RequestMapping("/theatre")
 public class TheatreController {
-	
+
 	@Autowired
 	private TheatreService theatreService;
-	
+
+	// API to onboard a Theatre -- (Uses Builder)
 	@PostMapping("/onboard")
-    public ResponseEntity<ApiResponse<Void>> onboardTheatre(
-            @RequestBody TheatreOnboardingRequest request) {
+	public ResponseEntity<ApiResponse<Void>> onboardTheatre(@RequestBody TheatreOnboardingRequest request) {
+		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String email = userDetails.getUsername();
+		ApiResponse<Void> response = theatreService.onboardTheatre(email, request);
+		return ResponseEntity.ok(response);
+	}
 
-        try {
-            // Get currently authenticated user
-            UserDetails userDetails = (UserDetails) SecurityContextHolder
-                                            .getContext()
-                                            .getAuthentication()
-                                            .getPrincipal();
-            String email = userDetails.getUsername();
-
-            ApiResponse<Void> response = theatreService.onboardTheatre(email, request);
-            return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-            return ResponseEntity.ok(new ApiResponse<>("failure", null, e.getMessage()));
-        }
-    }
-	
+	// API to get all movies to populate dropdown
 	@GetMapping("/movies")
 	public ResponseEntity<ApiResponse<List<MovieResponse>>> getAllMovies(
-	        @RequestParam(required = false) String titleFilter) {
+			@RequestParam(required = false) String titleFilter) {
 
-	    try {
-	        UserDetails userDetails = (UserDetails) SecurityContextHolder
-	                .getContext()
-	                .getAuthentication()
-	                .getPrincipal();
+		List<MovieResponse> movies = theatreService.getAllMovies(titleFilter);
 
-	        boolean isTheatreOwner = userDetails.getAuthorities().stream()
-	                .anyMatch(auth -> "THEATRE_OWNER".equalsIgnoreCase(auth.getAuthority()));
+		ApiResponse<List<MovieResponse>> apiResponse = new ApiResponse<>("success", movies,
+				"Movies retrieved successfully");
 
-	        if (!isTheatreOwner) {
-	            ApiResponse<List<MovieResponse>> error =
-	                    new ApiResponse<>("failure", null, "Access denied: Theatre Owners only");
-	            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
-	        }
+		return ResponseEntity.ok(apiResponse);
 
-	        List<MovieResponse> movies = theatreService.getAllMovies(titleFilter);
-
-	        ApiResponse<List<MovieResponse>> apiResponse =
-	                new ApiResponse<>("success", movies, "Movies retrieved successfully");
-
-	        return ResponseEntity.ok(apiResponse);
-
-	    } catch (Exception e) {
-	        ApiResponse<List<MovieResponse>> apiResponse =
-	                new ApiResponse<>("failure", null, e.getMessage());
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiResponse);
-	    }
 	}
 
-	
+	// API to get all avaialable languages for the movie by movie id
 	@GetMapping("/movies/{movieId}/availablelanguages")
-	public ResponseEntity<ApiResponse<List<LanguageDto>>> getLanguagesForMovie(
-	        @PathVariable Long movieId) {
+	public ResponseEntity<ApiResponse<List<LanguageDto>>> getLanguagesForMovie(@PathVariable Long movieId) {
 
-	    try {
-	        UserDetails userDetails = (UserDetails) SecurityContextHolder
-	                .getContext()
-	                .getAuthentication()
-	                .getPrincipal();
+		List<LanguageDto> langs = theatreService.getLanguagesForMovie(movieId);
 
-	        boolean isTheatreOwner = userDetails.getAuthorities().stream()
-	                .anyMatch(auth -> "THEATRE_OWNER".equalsIgnoreCase(auth.getAuthority()));
+		ApiResponse<List<LanguageDto>> apiResponse = new ApiResponse<>("success", langs,
+				"Languages retrieved successfully");
 
-	        if (!isTheatreOwner) {
-	            ApiResponse<List<LanguageDto>> error =
-	                    new ApiResponse<>("failure", null, "Access denied: Theatre Owners only");
-	            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
-	        }
+		return ResponseEntity.ok(apiResponse);
 
-	        List<LanguageDto> langs = theatreService.getLanguagesForMovie(movieId);
-
-	        ApiResponse<List<LanguageDto>> apiResponse =
-	                new ApiResponse<>("success", langs, "Languages retrieved successfully");
-
-	        return ResponseEntity.ok(apiResponse);
-
-	    } catch (Exception e) {
-	        ApiResponse<List<LanguageDto>> apiResponse =
-	                new ApiResponse<>("failure", null, e.getMessage());
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiResponse);
-	    }
 	}
-	
-	
-	
+
+	// API to get all available formats for the movie by movie id
 	@GetMapping("/movies/{movieId}/availableformats")
-	public ResponseEntity<ApiResponse<List<FormatDto>>> getFormatsForMovie(
-	        @PathVariable Long movieId) {
+	public ResponseEntity<ApiResponse<List<FormatDto>>> getFormatsForMovie(@PathVariable Long movieId) {
 
-	    try {
-	        UserDetails userDetails = (UserDetails) SecurityContextHolder
-	                .getContext()
-	                .getAuthentication()
-	                .getPrincipal();
+		List<FormatDto> formats = theatreService.getFromatsForMovie(movieId);
 
-	        boolean isTheatreOwner = userDetails.getAuthorities().stream()
-	                .anyMatch(auth -> "THEATRE_OWNER".equalsIgnoreCase(auth.getAuthority()));
+		ApiResponse<List<FormatDto>> apiResponse = new ApiResponse<>("success", formats,
+				"Formats retrieved successfully");
 
-	        if (!isTheatreOwner) {
-	            ApiResponse<List<FormatDto>> error =
-	                    new ApiResponse<>("failure", null, "Access denied: Theatre Owners only");
-	            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
-	        }
+		return ResponseEntity.ok(apiResponse);
 
-	        List<FormatDto> formats = theatreService.getFromatsForMovie(movieId);
-
-	        ApiResponse<List<FormatDto>> apiResponse = new ApiResponse<>("success", formats, "Formats retrieved successfully");
-
-	        return ResponseEntity.ok(apiResponse);
-
-	    } catch (Exception e) {
-	        ApiResponse<List<FormatDto>> apiResponse =
-	                new ApiResponse<>("failure", null, e.getMessage());
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiResponse);
-	    }
 	}
-	
+
+	// API to get all available subtitles for the movie by movie id
 	@GetMapping("/movies/{movieId}/availablesubtitles")
-	public ResponseEntity<ApiResponse<List<LanguageDto>>> getSubtitlesForMovie(
-	        @PathVariable Long movieId) {
+	public ResponseEntity<ApiResponse<List<LanguageDto>>> getSubtitlesForMovie(@PathVariable Long movieId) {
 
-	    try {
-	        UserDetails userDetails = (UserDetails) SecurityContextHolder
-	                .getContext()
-	                .getAuthentication()
-	                .getPrincipal();
+		List<LanguageDto> langs = theatreService.getSubtitlesForMovie(movieId);
 
-	        boolean isTheatreOwner = userDetails.getAuthorities().stream()
-	                .anyMatch(auth -> "THEATRE_OWNER".equalsIgnoreCase(auth.getAuthority()));
+		ApiResponse<List<LanguageDto>> apiResponse = new ApiResponse<>("success", langs,
+				"Subtitles retrieved successfully");
 
-	        if (!isTheatreOwner) {
-	            ApiResponse<List<LanguageDto>> error =
-	                    new ApiResponse<>("failure", null, "Access denied: Theatre Owners only");
-	            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
-	        }
+		return ResponseEntity.ok(apiResponse);
 
-	        List<LanguageDto> langs = theatreService.getSubtitlesForMovie(movieId);
-
-	        ApiResponse<List<LanguageDto>> apiResponse =
-	                new ApiResponse<>("success", langs, "Subtitles retrieved successfully");
-
-	        return ResponseEntity.ok(apiResponse);
-
-	    } catch (Exception e) {
-	        ApiResponse<List<LanguageDto>> apiResponse =
-	                new ApiResponse<>("failure", null, e.getMessage());
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiResponse);
-	    }
 	}
-	
+
+	// API to get owned theatres under theatre owner
 	@GetMapping("/owned")
-    public ResponseEntity<ApiResponse<List<TheatreResponse>>> getOwnedTheatres() {
-        try {
-            UserDetails userDetails = (UserDetails) SecurityContextHolder
-                    .getContext()
-                    .getAuthentication()
-                    .getPrincipal();
+	public ResponseEntity<ApiResponse<List<TheatreResponse>>> getOwnedTheatres() {
 
-            boolean isOwner = userDetails.getAuthorities().stream()
-                    .anyMatch(auth -> "THEATRE_OWNER".equalsIgnoreCase(auth.getAuthority()));
+		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-            if (!isOwner) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(new ApiResponse<>("failure", null, "Access denied: Theatre owners only"));
-            }
+		String ownerEmail = userDetails.getUsername();
+		List<TheatreResponse> response = theatreService.getOwnedTheatres(ownerEmail);
 
-            String ownerEmail = userDetails.getUsername();
-            List<TheatreResponse> response = theatreService.getOwnedTheatres(ownerEmail);
+		ApiResponse<List<TheatreResponse>> apiResponse = new ApiResponse<>("success", response,
+				"Owned theatres retrieved successfully");
 
-            ApiResponse<List<TheatreResponse>> apiResponse =
-                    new ApiResponse<>("success", response, "Owned theatres retrieved successfully");
+		return ResponseEntity.ok(apiResponse);
 
-            return ResponseEntity.ok(apiResponse);
-
-        } catch (Exception e) {
-            ApiResponse<List<TheatreResponse>> apiResponse =
-                    new ApiResponse<>("failure", null, e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiResponse);
-        }
 	}
-	
-	
+
+	// API to get all screen under slected theatre by theatre id
 	@GetMapping("/{theatreId}/screens")
-	public ResponseEntity<ApiResponse<List<ScreenResponse>>> getScreensByTheatre(
-	        @PathVariable Long theatreId) {
+	public ResponseEntity<ApiResponse<List<ScreenResponse>>> getScreensByTheatre(@PathVariable Long theatreId) {
 
-	    try {
-	        UserDetails userDetails = (UserDetails) SecurityContextHolder
-	                .getContext()
-	                .getAuthentication()
-	                .getPrincipal();
+		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-	        boolean isOwner = userDetails.getAuthorities().stream()
-	                .anyMatch(auth -> "THEATRE_OWNER".equalsIgnoreCase(auth.getAuthority()));
+		String ownerEmail = userDetails.getUsername();
 
-	        if (!isOwner) {
-	            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-	                    .body(new ApiResponse<>("failure", null, "Access denied: Theatre owners only"));
-	        }
+		List<ScreenResponse> response = theatreService.getScreensByTheatreId(theatreId, ownerEmail);
 
-	        String ownerEmail = userDetails.getUsername();
+		ApiResponse<List<ScreenResponse>> apiResponse = new ApiResponse<>("success", response,
+				"Screens retrieved successfully");
 
-	        List<ScreenResponse> response = theatreService.getScreensByTheatreId(theatreId, ownerEmail);
+		return ResponseEntity.ok(apiResponse);
 
-	        ApiResponse<List<ScreenResponse>> apiResponse =
-	                new ApiResponse<>("success", response, "Screens retrieved successfully");
-
-	        return ResponseEntity.ok(apiResponse);
-
-	    } catch (Exception e) {
-	        ApiResponse<List<ScreenResponse>> apiResponse =
-	                new ApiResponse<>("failure", null, e.getMessage());
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiResponse);
-	    }
 	}
-	
-	
+
+	// API to check showtime validity and return end time
 	@PostMapping("/showtime/check")
-	public ResponseEntity<ApiResponse<ShowTimeCheckResponse>> checkShowTime(
-	        @RequestBody ShowTimeCheckRequest request) {
+	public ResponseEntity<ApiResponse<ShowTimeCheckResponse>> checkShowTime(@RequestBody ShowTimeCheckRequest request) {
 
-	    try {
-	        UserDetails userDetails = (UserDetails) SecurityContextHolder
-	                .getContext()
-	                .getAuthentication()
-	                .getPrincipal();
+		ShowTimeCheckResponse result = theatreService.checkShowTime(request.getMovieId(), request.getScreenId(),
+				request.getStartDate(), request.getEndDate(), request.getStartTime());
 
-	        boolean isTheatreOwner = userDetails.getAuthorities().stream()
-	                .anyMatch(auth -> "THEATRE_OWNER".equalsIgnoreCase(auth.getAuthority()));
+		ApiResponse<ShowTimeCheckResponse> apiResponse = new ApiResponse<>("success", result, result.getMessage());
 
-	        if (!isTheatreOwner) {
-	            ApiResponse<ShowTimeCheckResponse> error =
-	                    new ApiResponse<>("failure", null, "Access denied: Theatre Owners only");
-	            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
-	        }
+		return ResponseEntity.ok(apiResponse);
 
-	        ShowTimeCheckResponse result = theatreService.checkShowTime(
-	                request.getMovieId(),
-	                request.getScreenId(),
-	                request.getStartDate(),
-	                request.getEndDate(),
-	                request.getStartTime()
-	        );
-
-	        ApiResponse<ShowTimeCheckResponse> apiResponse =
-	                new ApiResponse<>("success", result, result.getMessage());
-
-	        return ResponseEntity.ok(apiResponse);
-
-	    } catch (Exception e) {
-	        ApiResponse<ShowTimeCheckResponse> apiResponse =
-	                new ApiResponse<>("failure", null, e.getMessage());
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiResponse);
-	    }
 	}
-	
-	
+
+	// API to schedule showtime after selcting daterange and time -- for both single
+	// , batch
 	@PostMapping("/showtime/schedule")
 	public ResponseEntity<ApiResponse<List<LocalDate>>> scheduleShowTime(@RequestBody ShowTimeScheduleRequest request) {
 
-	    try {
-	        UserDetails userDetails = (UserDetails) SecurityContextHolder
-	                .getContext()
-	                .getAuthentication()
-	                .getPrincipal();
+		List<LocalDate> scheduledDates = theatreService.scheduleShowTime(request);
 
-	        boolean isTheatreOwner = userDetails.getAuthorities().stream()
-	                .anyMatch(auth -> "THEATRE_OWNER".equalsIgnoreCase(auth.getAuthority()));
+		if (scheduledDates == null || scheduledDates.isEmpty()) {
+			throw new RuntimeException("Cannot Schedule showtimes - overlap in showtime schedule");
+		}
 
-	        if (!isTheatreOwner) {
-	            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-	                    .body(new ApiResponse<>("failure", null, "Access denied: Theatre Owners only"));
-	        }
+		return ResponseEntity.ok(new ApiResponse<>("success", scheduledDates, "Showtimes scheduled successfuly"));
 
-	        List<LocalDate> scheduledDates = theatreService.scheduleShowTime(request);
-	        
-	        if (scheduledDates == null || scheduledDates.isEmpty()) {
-	            throw new RuntimeException("Cannot Schedule showtimes - overlap in showtime schedule"); 
-	        }
-
-	        return ResponseEntity.ok(new ApiResponse<>("success", scheduledDates, "Showtimes scheduled successfuly"));
-
-	    } catch (Exception e) {
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-	                .body(new ApiResponse<>("failure", null, e.getMessage()));
-	    }
 	}
 
-	
-
-	
-	
 }

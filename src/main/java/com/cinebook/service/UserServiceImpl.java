@@ -1,6 +1,11 @@
+/**
+ * @author Sidharthan Jayavelu
+ * 
+ * 
+ */
+
 package com.cinebook.service;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,18 +17,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.cinebook.builder.TheatreBuilder;
 import com.cinebook.dto.ApiResponse;
 import com.cinebook.dto.LoginRequest;
 import com.cinebook.dto.RegisterRequest;
 import com.cinebook.dto.UpgradeToTheatreOwnerRequest;
 import com.cinebook.model.Address;
 import com.cinebook.model.Customer;
-import com.cinebook.model.OnboardingRequest;
-import com.cinebook.model.RequestStatus;
 import com.cinebook.model.Role;
-import com.cinebook.model.Theatre;
-import com.cinebook.model.TheatreOwner;
 import com.cinebook.model.User;
 import com.cinebook.repository.RoleRepository;
 import com.cinebook.repository.UserRepository;
@@ -147,8 +147,5 @@ public class UserServiceImpl implements UserService {
 
 		return new ApiResponse<>("success", null, "User upgraded to TheatreOwner successfully");
 	}
-	
-	
-
 
 }

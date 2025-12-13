@@ -1,5 +1,10 @@
-package com.cinebook.dto;
+/**
+ * @author Sidharthan Jayavelu
+ * 
+ * 
+ */
 
+package com.cinebook.dto;
 
 public class SeatCategoryResponse {
 	private Long categoryId;

@@ -1,3 +1,9 @@
+/**
+ * @author Abhaydev and Mathew
+ * 
+ * 
+ */
+
 package com.cinebook.dto;
 
 import java.time.LocalDate;
@@ -98,5 +104,5 @@ public class MovieRequest {
 	public void setGenre(Genre genre) {
 		this.genre = genre;
 	}
-	
+
 }

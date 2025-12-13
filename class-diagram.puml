@@ -1,0 +1,502 @@
+@startuml
+
+class com.cinebook.controller.AdminController {
+	{method} +addMovie ( dto : com.cinebook.dto.MovieRequest ) : org.springframework.http.ResponseEntity
+	{method} +getCertifications () : org.springframework.http.ResponseEntity
+	{method} +getFormats () : org.springframework.http.ResponseEntity
+	{method} +getGenres () : org.springframework.http.ResponseEntity
+	{method} +getLanguages () : org.springframework.http.ResponseEntity
+	{method} +getOnboardingRequestById ( id : Long ) : org.springframework.http.ResponseEntity
+	{method} +getOnboardingRequests ( statusName : String ) : org.springframework.http.ResponseEntity
+	{method} +updateOnboardingRequestStatus ( statusUpdateRequest : com.cinebook.dto.StatusUpdateRequest ) : org.springframework.http.ResponseEntity
+}
+
+
+class com.cinebook.controller.BookingController {
+	{method} +applyDiscount ( request : com.cinebook.dto.ApplyDiscountRequest ) : org.springframework.http.ResponseEntity
+	{method} +browseTheatres ( request : com.cinebook.dto.BrowseTheatreRequest ) : org.springframework.http.ResponseEntity
+	{method} +cancelBooking ( request : com.cinebook.dto.CancelBookingRequest ) : org.springframework.http.ResponseEntity
+	{method} +cancelDiscount ( request : com.cinebook.dto.CancelDiscountRequest ) : org.springframework.http.ResponseEntity
+	{method} +confirmBooking ( request : com.cinebook.dto.ConfirmBookingRequest ) : org.springframework.http.ResponseEntity
+	{method} +getShowTimeDetails ( showTimeId : Long ) : org.springframework.http.ResponseEntity
+	{method} +getShowtimesByTheatre ( theatreId : Long ) : org.springframework.http.ResponseEntity
+	{method} +lockSeats ( request : com.cinebook.dto.LockSeatsRequest ) : org.springframework.http.ResponseEntity
+}
+
+
+class com.cinebook.controller.LoyaltyController {
+	{method} +getAllVoucherTypes () : org.springframework.http.ResponseEntity
+	{method} +purchaseVoucher ( request : com.cinebook.dto.PurchaseVoucherRequest ) : org.springframework.http.ResponseEntity
+}
+
+
+class com.cinebook.controller.TheatreController {
+	{method} +checkShowTime ( request : com.cinebook.dto.ShowTimeCheckRequest ) : org.springframework.http.ResponseEntity
+	{method} +getAllMovies ( titleFilter : String ) : org.springframework.http.ResponseEntity
+	{method} +getFormatsForMovie ( movieId : Long ) : org.springframework.http.ResponseEntity
+	{method} +getLanguagesForMovie ( movieId : Long ) : org.springframework.http.ResponseEntity
+	{method} +getOwnedTheatres () : org.springframework.http.ResponseEntity
+	{method} +getScreensByTheatre ( theatreId : Long ) : org.springframework.http.ResponseEntity
+	{method} +getSubtitlesForMovie ( movieId : Long ) : org.springframework.http.ResponseEntity
+	{method} +onboardTheatre ( request : com.cinebook.dto.TheatreOnboardingRequest ) : org.springframework.http.ResponseEntity
+	{method} +scheduleShowTime ( request : com.cinebook.dto.ShowTimeScheduleRequest ) : org.springframework.http.ResponseEntity
+}
+
+
+class com.cinebook.controller.UserController {
+	{method} +loginUser ( request : com.cinebook.dto.LoginRequest ) : org.springframework.http.ResponseEntity
+	{method} +registerUser ( request : com.cinebook.dto.RegisterRequest ) : org.springframework.http.ResponseEntity
+	{method} +upgradeToTheatreOwner ( request : com.cinebook.dto.UpgradeToTheatreOwnerRequest ) : org.springframework.http.ResponseEntity
+}
+
+
+class com.cinebook.model.Address {
+	{field} +addressId : Long
+	{field} +addressLine1 : String
+	{field} +addressLine2 : String
+	{field} +county : String
+	{field} +eirCode : String
+}
+
+
+class com.cinebook.model.Admin {
+	{field} +modifiedDate : java.time.LocalDateTime
+	{field} +registeredDate : java.time.LocalDateTime
+}
+
+
+class com.cinebook.model.Booking {
+	{field} +bookingId : java.util.UUID
+	{field} +createdAt : java.time.LocalDateTime
+	{field} +discountedAmount : Float
+	{field} +loyaltyPointsEarned : Integer
+	{field} +modifiedAt : java.time.LocalDateTime
+	{field} +taxAmount : Float
+	{field} +taxPercentage : Float
+	{field} +ticketPdf : [B
+	{field} +totalPrice : Float
+}
+
+
+class com.cinebook.model.BookingStatus {
+	{field} +description : String
+	{field} +statusId : Integer
+	{field} +statusName : String
+}
+
+
+enum com.cinebook.model.Certification {
+	{field} +12
+	{field} +12A
+	{field} +15
+	{field} +15A
+	{field} +16
+	{field} +18
+	{field} +G
+	{field} +PG
+}
+
+
+class com.cinebook.model.Customer {
+	{field} +loyaltyPoints : Integer
+	{field} +modifiedDate : java.time.LocalDateTime
+	{field} +registeredDate : java.time.LocalDateTime
+}
+
+
+abstract class com.cinebook.model.DiscountCode {
+	{field} +code : String
+	{field} +discountPercentage : Float
+	{field} +maxDiscountAmount : Float
+}
+
+
+class com.cinebook.model.Format {
+	{field} +format : String
+	{field} +formatId : Integer
+}
+
+
+enum com.cinebook.model.Genre {
+	{field} +ACTION
+	{field} +ADVENTURE
+	{field} +ANIMATION
+	{field} +BIOGRAPHY
+	{field} +COMEDY
+	{field} +CRIME
+	{field} +DOCUMENTARY
+	{field} +DRAMA
+	{field} +FAMILY
+	{field} +FANTASY
+	{field} +HISTORY
+	{field} +HORROR
+	{field} +MUSICAL
+	{field} +MYSTERY
+	{field} +ROMANCE
+	{field} +SCI_FI
+	{field} +SPORT
+	{field} +THRILLER
+	{field} +WAR
+	{field} +WESTERN
+}
+
+
+class com.cinebook.model.GlobalConfig {
+	{field} +configId : Long
+	{field} +configKey : String
+	{field} +configValue : String
+	{field} +description : String
+}
+
+
+class com.cinebook.model.Language {
+	{field} +language : String
+	{field} +languageId : Integer
+}
+
+
+class com.cinebook.model.Movie {
+	{field} +movieId : Long
+	{field} +movieTitle : String
+	{field} +posterUrl : String
+	{field} +releaseDate : java.time.LocalDate
+	{field} +runTimeMinutes : Integer
+	{field} +synopsis : String
+}
+
+
+class com.cinebook.model.OnboardingRequest {
+	{field} +adminRemarks : String
+	{field} +createdAt : java.time.LocalDateTime
+	{field} +requestId : Long
+	{field} +updatedAt : java.time.LocalDateTime
+	{method} +onCreate () : void
+	{method} +onUpdate () : void
+}
+
+
+class com.cinebook.model.PromoCode {
+	{field} +expiryDate : java.time.LocalDateTime
+	{field} +maxUsePerCustomer : Integer
+	{field} +promoCodeId : Integer
+	{field} +startDate : java.time.LocalDateTime
+}
+
+
+class com.cinebook.model.RequestStatus {
+	{field} +statusId : Long
+	{field} +statusName : String
+}
+
+
+class com.cinebook.model.Role {
+	{field} +roleId : Integer
+	{field} +roleName : String
+}
+
+
+class com.cinebook.model.Screen {
+	{field} +createdAt : java.time.LocalDateTime
+	{field} +screenId : Long
+	{field} +screenName : String
+	{field} +totalSeats : int
+	{field} +updatedAt : java.time.LocalDateTime
+}
+
+
+class com.cinebook.model.Seat {
+	{field} +columnNumber : int
+	{field} +rowName : String
+	{field} +seatId : Long
+	{field} +seatName : String
+}
+
+
+class com.cinebook.model.SeatCategory {
+	{field} +categoryName : String
+	{field} +description : String
+	{field} +priceMultiplier : Double
+	{field} +seatCategoryId : Long
+}
+
+
+class com.cinebook.model.ShowTime {
+	{field} +createdAt : java.time.LocalDateTime
+	{field} +endTime : java.time.LocalDateTime
+	{field} +modifiedAt : java.time.LocalDateTime
+	{field} +price : Float
+	{field} +showTimeId : Long
+	{field} +startTime : java.time.LocalDateTime
+}
+
+
+class com.cinebook.model.Theatre {
+	{field} +contactNumber : String
+	{field} +createdAt : java.time.LocalDateTime
+	{field} -isActive : boolean
+	{field} +overview : String
+	{field} +theatreId : Long
+	{field} +theatreName : String
+	{field} +updatedAt : java.time.LocalDateTime
+	{method} +isActive () : boolean
+	{method} +setActive ( isActive : boolean ) : void
+}
+
+
+class com.cinebook.model.TheatreOwner {
+	{field} +businessId : String
+	{field} +businessName : String
+	{field} +modifiedDate : java.time.LocalDateTime
+	{field} +registeredDate : java.time.LocalDateTime
+	{field} +taxId : String
+}
+
+
+class com.cinebook.model.User {
+	{field} +email : String
+	{field} +firstName : String
+	{field} +lastName : String
+	{field} +passwordHash : String
+	{field} +phoneNumber : String
+	{field} +userId : Long
+}
+
+
+class com.cinebook.model.VoucherCode {
+	{field} +expiryDate : java.time.LocalDateTime
+	{field} +purchaseDate : java.time.LocalDateTime
+	{field} +voucherCodeId : Integer
+}
+
+
+class com.cinebook.model.VoucherType {
+	{field} +discountPercentage : Float
+	{field} +isActive : Boolean
+	{field} +loyaltyPointsCost : Integer
+	{field} +maxDiscountAmount : Float
+	{field} +validityPeriodDays : Integer
+	{field} +voucherName : String
+	{field} +voucherTypeId : Integer
+}
+
+
+interface com.cinebook.service.AdminService {
+	{method}  {abstract} +addMovie ( dto : com.cinebook.dto.MovieRequest , adminEmail : String ) : com.cinebook.model.Movie
+	{method}  {abstract} +getAllCertifications () : java.util.List
+	{method}  {abstract} +getAllFormats () : java.util.List
+	{method}  {abstract} +getAllGenres () : java.util.List
+	{method}  {abstract} +getAllLanguages () : java.util.List
+	{method}  {abstract} +getOnboardingRequestById ( id : Long ) : com.cinebook.model.OnboardingRequest
+	{method}  {abstract} +getOnboardingRequests ( statusName : String ) : java.util.List
+	{method}  {abstract} +updateOnboardingRequestStatus ( statusUpdateRequest : com.cinebook.dto.StatusUpdateRequest ) : com.cinebook.model.OnboardingRequest
+}
+
+
+class com.cinebook.service.AdminServiceImpl {
+	{field} ~formatRepository : com.cinebook.repository.FormatRepository
+	{field} ~languageRepository : com.cinebook.repository.LanguagesRepository
+	{field} ~movieRepository : com.cinebook.repository.MovieRepository
+	{field} ~onboardingRequestRepository : com.cinebook.repository.OnboardingRequestRepository
+	{field} ~requestStatusRepository : com.cinebook.repository.RequestStatusRepository
+	{field} ~theatreRepository : com.cinebook.repository.TheatreRepository
+	{field} ~userRepository : com.cinebook.repository.UserRepository
+	{method} +addMovie ( dto : com.cinebook.dto.MovieRequest , adminEmail : String ) : com.cinebook.model.Movie
+	{method} +getAllCertifications () : java.util.List
+	{method} +getAllFormats () : java.util.List
+	{method} +getAllGenres () : java.util.List
+	{method} +getAllLanguages () : java.util.List
+	{method} +getOnboardingRequestById ( id : Long ) : com.cinebook.model.OnboardingRequest
+	{method} +getOnboardingRequests ( statusName : String ) : java.util.List
+	{method} +updateOnboardingRequestStatus ( statusUpdateRequest : com.cinebook.dto.StatusUpdateRequest ) : com.cinebook.model.OnboardingRequest
+}
+
+
+interface com.cinebook.service.BookingService {
+	{method}  {abstract} +applyDiscount ( bookingId : java.util.UUID , discountCode : String , customerEmail : String ) : com.cinebook.dto.ApplyDiscountResponse
+	{method}  {abstract} +browseTheatres ( request : com.cinebook.dto.BrowseTheatreRequest ) : java.util.List
+	{method}  {abstract} +cancelBooking ( bookingId : java.util.UUID ) : com.cinebook.dto.ConfirmBookingResponse
+	{method}  {abstract} +confirmBooking ( bookingId : java.util.UUID ) : com.cinebook.dto.ConfirmBookingResponse
+	{method}  {abstract} +getAvailableMovies ( languageIds : java.util.List , formatIds : java.util.List , genre : String , search : String , sortAsc : boolean ) : java.util.List
+	{method}  {abstract} +getShowTimeDetails ( showTimeId : Long ) : com.cinebook.dto.ShowTimeDetailsResponse
+	{method}  {abstract} +getShowtimesByTheatre ( theatreId : Long ) : com.cinebook.dto.TheatreShowtimesResponse
+	{method}  {abstract} +lockSeats ( showTimeId : Long , customerEmail : String , seatIds : java.util.List ) : com.cinebook.dto.LockSeatsResponse
+	{method}  {abstract} +undoDiscount ( bookingId : java.util.UUID , customerEmail : String ) : com.cinebook.dto.ApplyDiscountResponse
+}
+
+
+class com.cinebook.service.BookingServiceImpl {
+	{field} -bookingRepository : com.cinebook.repository.BookingRepository
+	{field} -bookingStatusRepository : com.cinebook.repository.BookingStatusRepository
+	{field} -customerRepository : com.cinebook.repository.CustomerRepository
+	{field} -globalConfigRepository : com.cinebook.repository.GlobalConfigRepository
+	{field} -observers : java.util.List
+	{field} -promoCodeRepository : com.cinebook.repository.PromoCodeRepository
+	{field} -seatRepository : com.cinebook.repository.SeatRepository
+	{field} -showTimeRepository : com.cinebook.repository.ShowtimeRepository
+	{field} -theatreRepository : com.cinebook.repository.TheatreRepository
+	{field} -voucherCodeRepository : com.cinebook.repository.VoucherCodeRepository
+	{method} +applyDiscount ( bookingId : java.util.UUID , discountCode : String , customerEmail : String ) : com.cinebook.dto.ApplyDiscountResponse
+	{method} +browseTheatres ( request : com.cinebook.dto.BrowseTheatreRequest ) : java.util.List
+	{method} +cancelBooking ( bookingId : java.util.UUID ) : com.cinebook.dto.ConfirmBookingResponse
+	{method} +confirmBooking ( bookingId : java.util.UUID ) : com.cinebook.dto.ConfirmBookingResponse
+	{method} +getAvailableMovies ( languageIds : java.util.List , formatIds : java.util.List , genre : String , search : String , sortAsc : boolean ) : java.util.List
+	{method} +getShowTimeDetails ( showTimeId : Long ) : com.cinebook.dto.ShowTimeDetailsResponse
+	{method} +getShowtimesByTheatre ( theatreId : Long ) : com.cinebook.dto.TheatreShowtimesResponse
+	{method} +init () : void
+	{method} +lockSeats ( showTimeId : Long , customerEmail : String , seatIds : java.util.List ) : com.cinebook.dto.LockSeatsResponse
+	{method} -notifyObservers ( booking : com.cinebook.model.Booking ) : void
+	{method} +undoDiscount ( bookingId : java.util.UUID , customerEmail : String ) : com.cinebook.dto.ApplyDiscountResponse
+}
+
+
+class com.cinebook.service.JwtService {
+	{field} {static} -EXPIRATION : long
+	{field} {static} -SECRET_KEY : String
+	{method} -createToken ( claims : java.util.Map , subject : String ) : String
+	{method} -extractAllClaims ( token : String ) : io.jsonwebtoken.Claims
+	{method} +extractClaim ( token : String , claimsResolver : java.util.function.Function ) : Object
+	{method} -extractExpiration ( token : String ) : java.util.Date
+	{method} +extractUsername ( token : String ) : String
+	{method} +generateToken ( userDetails : org.springframework.security.core.userdetails.UserDetails ) : String
+	{method} -getSignKey () : java.security.Key
+	{method} -isTokenExpired ( token : String ) : boolean
+	{method} +isTokenValid ( token : String , userDetails : org.springframework.security.core.userdetails.UserDetails ) : boolean
+}
+
+
+interface com.cinebook.service.LoyaltyService {
+	{method}  {abstract} +getAllVoucherTypes () : java.util.List
+	{method}  {abstract} +purchaseVoucher ( customerEmail : String , voucherTypeId : Integer ) : com.cinebook.model.VoucherCode
+}
+
+
+class com.cinebook.service.LoyaltyServiceImpl {
+	{field} ~customerRepository : com.cinebook.repository.CustomerRepository
+	{field} ~voucherCodeRepository : com.cinebook.repository.VoucherCodeRepository
+	{field} ~voucherTypeRepository : com.cinebook.repository.VoucherTypeRepository
+	{method} +getAllVoucherTypes () : java.util.List
+	{method} +purchaseVoucher ( customerEmail : String , voucherTypeId : Integer ) : com.cinebook.model.VoucherCode
+}
+
+
+interface com.cinebook.service.TheatreService {
+	{method}  {abstract} +checkShowTime ( movieId : Long , screenId : Long , startDate : java.time.LocalDate , endDate : java.time.LocalDate , selectedStartTime : java.time.LocalTime ) : com.cinebook.dto.ShowTimeCheckResponse
+	{method}  {abstract} +getAllMovies ( titleFilter : String ) : java.util.List
+	{method}  {abstract} +getFromatsForMovie ( movieId : Long ) : java.util.List
+	{method}  {abstract} +getLanguagesForMovie ( movieId : Long ) : java.util.List
+	{method}  {abstract} +getOwnedTheatres ( ownerEmail : String ) : java.util.List
+	{method}  {abstract} +getScreensByTheatreId ( theatreId : Long , ownerEmail : String ) : java.util.List
+	{method}  {abstract} +getSubtitlesForMovie ( movieId : Long ) : java.util.List
+	{method}  {abstract} +onboardTheatre ( userEmail : String , request : com.cinebook.dto.TheatreOnboardingRequest ) : com.cinebook.dto.ApiResponse
+	{method}  {abstract} +scheduleShowTime ( request : com.cinebook.dto.ShowTimeScheduleRequest ) : java.util.List
+}
+
+
+class com.cinebook.service.TheatreServiceImpl {
+	{field} -conflictPolicy : com.cinebook.strategy.ShowTimeConflictPolicy
+	{field} -formatRepository : com.cinebook.repository.FormatRepository
+	{field} -languageRepository : com.cinebook.repository.LanguagesRepository
+	{field} -movieRepository : com.cinebook.repository.MovieRepository
+	{field} -onboardingRequestRepository : com.cinebook.repository.OnboardingRequestRepository
+	{field} -requestStatusRepository : com.cinebook.repository.RequestStatusRepository
+	{field} -screenRepository : com.cinebook.repository.ScreenRepository
+	{field} -showtimeRepository : com.cinebook.repository.ShowtimeRepository
+	{field} -theatreOwnerRepository : com.cinebook.repository.TheatreOwnerRepository
+	{field} -theatreRepository : com.cinebook.repository.TheatreRepository
+	{field} -userRepository : com.cinebook.repository.UserRepository
+	{method} +checkShowTime ( movieId : Long , screenId : Long , startDate : java.time.LocalDate , endDate : java.time.LocalDate , startTime : java.time.LocalTime ) : com.cinebook.dto.ShowTimeCheckResponse
+	{method} +getAllMovies ( titleFilter : String ) : java.util.List
+	{method} +getFromatsForMovie ( movieId : Long ) : java.util.List
+	{method} +getLanguagesForMovie ( movieId : Long ) : java.util.List
+	{method} +getOwnedTheatres ( ownerEmail : String ) : java.util.List
+	{method} +getScreensByTheatreId ( theatreId : Long , ownerEmail : String ) : java.util.List
+	{method} +getSubtitlesForMovie ( movieId : Long ) : java.util.List
+	{method} +onboardTheatre ( userEmail : String , request : com.cinebook.dto.TheatreOnboardingRequest ) : com.cinebook.dto.ApiResponse
+	{method} +scheduleShowTime ( request : com.cinebook.dto.ShowTimeScheduleRequest ) : java.util.List
+}
+
+
+class com.cinebook.service.UserDetailsServiceImpl {
+	{field} -userRepository : com.cinebook.repository.UserRepository
+	{method} +loadUserByUsername ( email : String ) : org.springframework.security.core.userdetails.UserDetails
+}
+
+
+interface com.cinebook.service.UserService {
+	{method}  {abstract} +loginUser ( request : com.cinebook.dto.LoginRequest ) : String
+	{method}  {abstract} +registerUser ( request : com.cinebook.dto.RegisterRequest ) : com.cinebook.model.User
+	{method}  {abstract} +upgradeToTheatreOwner ( email : String , request : com.cinebook.dto.UpgradeToTheatreOwnerRequest ) : com.cinebook.dto.ApiResponse
+}
+
+
+class com.cinebook.service.UserServiceImpl {
+	{field} -authenticationManager : org.springframework.security.authentication.AuthenticationManager
+	{field} -entityManager : jakarta.persistence.EntityManager
+	{field} -passwordEncoder : org.springframework.security.crypto.password.PasswordEncoder
+	{field} -roleRepository : com.cinebook.repository.RoleRepository
+	{field} -userRepository : com.cinebook.repository.UserRepository
+	{method} +loginUser ( request : com.cinebook.dto.LoginRequest ) : String
+	{method} +registerUser ( request : com.cinebook.dto.RegisterRequest ) : com.cinebook.model.User
+	{method} +upgradeToTheatreOwner ( email : String , request : com.cinebook.dto.UpgradeToTheatreOwnerRequest ) : com.cinebook.dto.ApiResponse
+}
+
+
+
+
+com.cinebook.controller.AdminController -->  com.cinebook.service.AdminService : adminService
+com.cinebook.controller.BookingController -->  com.cinebook.service.BookingService : bookingService
+com.cinebook.controller.LoyaltyController -->  com.cinebook.service.LoyaltyService : loyaltyService
+com.cinebook.controller.TheatreController -->  com.cinebook.service.TheatreService : theatreService
+com.cinebook.controller.UserController -->  com.cinebook.service.UserService : userService
+com.cinebook.model.Admin "1" o-- "0..*"  com.cinebook.model.Movie : movieList
+com.cinebook.model.Admin --|>  com.cinebook.model.User
+com.cinebook.model.Booking "1" o-- "0..*"  com.cinebook.model.Seat : seats
+com.cinebook.model.Booking -->  com.cinebook.model.BookingStatus :  @ManyToOne\nstatus
+com.cinebook.model.Booking -->  com.cinebook.model.Customer :  @ManyToOne\ncustomer
+com.cinebook.model.Booking -->  com.cinebook.model.PromoCode :  @ManyToOne\npromocodeUsed
+com.cinebook.model.Booking -->  com.cinebook.model.ShowTime :  @ManyToOne\nshowTime
+com.cinebook.model.Booking -->  com.cinebook.model.VoucherCode :  @ManyToOne\nvoucherApplied
+com.cinebook.model.Customer --|>  com.cinebook.model.User
+com.cinebook.model.Movie "1" o-- "0..*"  com.cinebook.model.Format : availableFormats
+com.cinebook.model.Movie "1" o-- "0..*"  com.cinebook.model.Language : availableLanguages
+com.cinebook.model.Movie "1" o-- "0..*"  com.cinebook.model.Language : subtitleLanguages
+com.cinebook.model.Movie -->  com.cinebook.model.Admin :  @ManyToOne\ncreatedBy
+com.cinebook.model.Movie -->  com.cinebook.model.Certification :  @Column("certification")\ncertification
+com.cinebook.model.Movie -->  com.cinebook.model.Genre :  @Column("genre")\ngenre
+com.cinebook.model.OnboardingRequest -->  com.cinebook.model.RequestStatus :  @ManyToOne\nstatus
+com.cinebook.model.OnboardingRequest -->  com.cinebook.model.Theatre :  @ManyToOne\ntheatre
+com.cinebook.model.OnboardingRequest -->  com.cinebook.model.TheatreOwner :  @ManyToOne\ntheatreOwner
+com.cinebook.model.PromoCode --|>  com.cinebook.model.DiscountCode
+com.cinebook.model.Screen "1" o-- "0..*"  com.cinebook.model.SeatCategory : seatCategories
+com.cinebook.model.Screen -->  com.cinebook.model.Theatre :  @ManyToOne\ntheatre
+com.cinebook.model.Seat -->  com.cinebook.model.Screen :  @ManyToOne\nscreen
+com.cinebook.model.Seat -->  com.cinebook.model.SeatCategory :  @ManyToOne\nseatCategory
+com.cinebook.model.SeatCategory "1" o-- "0..*"  com.cinebook.model.Seat : seats
+com.cinebook.model.SeatCategory -->  com.cinebook.model.Screen :  @ManyToOne\nscreen
+com.cinebook.model.ShowTime -->  com.cinebook.model.Format :  @ManyToOne\nformat
+com.cinebook.model.ShowTime -->  com.cinebook.model.Language :  @ManyToOne\nlanguage
+com.cinebook.model.ShowTime -->  com.cinebook.model.Language :  @ManyToOne\nsubtitleLanguage
+com.cinebook.model.ShowTime -->  com.cinebook.model.Movie :  @ManyToOne\nmovie
+com.cinebook.model.ShowTime -->  com.cinebook.model.Screen :  @ManyToOne\nscreen
+com.cinebook.model.Theatre "1" o-- "0..*"  com.cinebook.model.Screen : screenList
+com.cinebook.model.Theatre -->  com.cinebook.model.Address :  @OneToOne\naddress
+com.cinebook.model.Theatre -->  com.cinebook.model.TheatreOwner :  @ManyToOne\ntheatreOwner
+com.cinebook.model.TheatreOwner "1" o-- "0..*"  com.cinebook.model.OnboardingRequest : onboardingRequests
+com.cinebook.model.TheatreOwner "1" o-- "0..*"  com.cinebook.model.Theatre : theatresOwned
+com.cinebook.model.TheatreOwner --|>  com.cinebook.model.User
+com.cinebook.model.User "1" o-- "0..*"  com.cinebook.model.Role : roles
+com.cinebook.model.User -->  com.cinebook.model.Address :  @OneToOne\naddress
+com.cinebook.model.VoucherCode -->  com.cinebook.model.Customer :  @ManyToOne\ncustomer
+com.cinebook.model.VoucherCode -->  com.cinebook.model.VoucherType :  @ManyToOne\nvoucherType
+com.cinebook.model.VoucherCode --|>  com.cinebook.model.DiscountCode
+com.cinebook.service.AdminServiceImpl ..|>  com.cinebook.service.AdminService
+com.cinebook.service.BookingServiceImpl ..|>  com.cinebook.service.BookingService
+com.cinebook.service.LoyaltyServiceImpl ..|>  com.cinebook.service.LoyaltyService
+com.cinebook.service.TheatreServiceImpl ..|>  com.cinebook.service.TheatreService
+com.cinebook.service.UserServiceImpl -->  com.cinebook.service.JwtService : jwtService
+com.cinebook.service.UserServiceImpl -->  com.cinebook.service.UserDetailsServiceImpl : userDetailsService
+com.cinebook.service.UserServiceImpl ..|>  com.cinebook.service.UserService
+
+hide org.springframework.boot.SpringApplication
+
+@enduml

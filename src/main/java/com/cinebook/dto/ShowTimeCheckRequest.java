@@ -1,3 +1,9 @@
+/**
+ * @author Sidharthan Jayavelu
+ * 
+ * 
+ */
+
 package com.cinebook.dto;
 
 import java.time.LocalDate;
@@ -5,12 +11,12 @@ import java.time.LocalTime;
 
 public class ShowTimeCheckRequest {
 	private Long movieId;
-    private Long screenId;
+	private Long screenId;
 
-    private LocalDate startDate;
-    private LocalDate endDate;
+	private LocalDate startDate;
+	private LocalDate endDate;
 
-    private LocalTime startTime;
+	private LocalTime startTime;
 
 	public Long getMovieId() {
 		return movieId;
@@ -51,8 +57,5 @@ public class ShowTimeCheckRequest {
 	public void setStartTime(LocalTime startTime) {
 		this.startTime = startTime;
 	}
-   
-    
 
-    
 }

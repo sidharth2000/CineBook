@@ -1,3 +1,9 @@
+/**
+ * @author Sidharthan Jayavelu
+ * 
+ * 
+ */
+
 package com.cinebook.service;
 
 import java.util.List;
@@ -13,21 +19,17 @@ import com.cinebook.dto.TheatreBrowseResponse;
 import com.cinebook.dto.TheatreShowtimesResponse;
 
 public interface BookingService {
-	
+
 	List<TheatreBrowseResponse> browseTheatres(BrowseTheatreRequest request);
-	
+
 	List<MovieBrowseResponse> getAvailableMovies(List<Long> languageIds, List<Long> formatIds, String genre,
 			String search, boolean sortAsc);
 
 	TheatreShowtimesResponse getShowtimesByTheatre(Long theatreId);
 
 	ShowTimeDetailsResponse getShowTimeDetails(Long showTimeId);
-	
-	
 
 	LockSeatsResponse lockSeats(Long showTimeId, String customerEmail, List<Long> seatIds);
-	
-	
 
 	ApplyDiscountResponse applyDiscount(UUID bookingId, String discountCode, String customerEmail);
 

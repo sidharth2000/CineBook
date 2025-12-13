@@ -1,3 +1,11 @@
+/**
+ * @author Sidharthan Jayavelu
+ * 
+ * Description:
+ * UserController facilitates register , login and the upgrade to tehatre owner usecase
+ * 
+ */
+
 package com.cinebook.controller;
 
 import java.util.HashMap;
@@ -22,62 +30,40 @@ import com.cinebook.service.UserService;
 @RestController
 @RequestMapping("/user")
 public class UserController {
-	
+
 	@Autowired
 	private UserService userService;
-	
+
+	// API to register a user
 	@PostMapping("/register")
 	public ResponseEntity<ApiResponse<?>> registerUser(@RequestBody RegisterRequest request) {
-	    try {
-	        userService.registerUser(request);
-	        return ResponseEntity.ok(
-	                new ApiResponse<>("success", null, "User registered successfully")
-	        );
-	    } catch (RuntimeException e) {
-	        return ResponseEntity.badRequest().body(
-	                new ApiResponse<>("failure", null, e.getMessage())
-	        );
-	    }
+
+		userService.registerUser(request);
+		return ResponseEntity.ok(new ApiResponse<>("success", null, "User registered successfully"));
+
 	}
-	
-	
-	
+
+	// API to login and get bearer token
 	@PostMapping("/login")
 	public ResponseEntity<ApiResponse<?>> loginUser(@RequestBody LoginRequest request) {
-	    try {
-	        String token = userService.loginUser(request);
 
-	        // Prepare payload as a JSON-like map
-	        Map<String, String> payload = new HashMap<>();
-	        payload.put("token", token);
+		String token = userService.loginUser(request);
+		Map<String, String> payload = new HashMap<>();
+		payload.put("token", token);
 
-	        return ResponseEntity.ok(
-	                new ApiResponse<>("success", payload, "Login successful")
-	        );
-	    } catch (RuntimeException e) {
-	        return ResponseEntity.badRequest().body(
-	                new ApiResponse<>("failure", null, e.getMessage())
-	        );
-	    }
+		return ResponseEntity.ok(new ApiResponse<>("success", payload, "Login successful"));
+
 	}
-	
+
+	// API to upgrade to theare owner from customer
 	@PostMapping("/upgrade-to-theatre-owner")
-	public ResponseEntity<ApiResponse<Void>> upgradeToTheatreOwner(
-	        @RequestBody UpgradeToTheatreOwnerRequest request
-	) {
-	    try {
-	        // Get currently authenticated user
-	        UserDetails userDetails = (UserDetails) SecurityContextHolder
-	                                        .getContext()
-	                                        .getAuthentication()
-	                                        .getPrincipal();
-	        String email = userDetails.getUsername();
-//	        System.out.print(email);
-	        ApiResponse<Void> response = userService.upgradeToTheatreOwner(email, request);
-	        return ResponseEntity.ok(response);
-	    } catch (RuntimeException e) {
-	        return ResponseEntity.ok(new ApiResponse<>("failure", null, e.getMessage()));
-	    }
+	public ResponseEntity<ApiResponse<Void>> upgradeToTheatreOwner(@RequestBody UpgradeToTheatreOwnerRequest request) {
+
+		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String email = userDetails.getUsername();
+		ApiResponse<Void> response = userService.upgradeToTheatreOwner(email, request);
+		return ResponseEntity.ok(response);
+
 	}
 
 }
